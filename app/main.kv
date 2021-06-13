@@ -1,6 +1,8 @@
-#:kivy 2.0
+#:kivy 2.0.0
+#:import NoTransition kivy.uix.screenmanager.NoTransition
 
 <RootScreen>
+    transition: NoTransition()
     StartScreen:
     GameScreen:
 
@@ -12,5 +14,36 @@
             size:self.size
             source: 'resources/img/bg.png'
 
+    BoxLayout:
+        Button:
+            text: "Start"
+            background_color: 0, 0, 1, 1
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 0.5
+                root.manager.current = "game"
+            size: self.width, 50
+            size_hint: 1, None
+            pos_hint: {'bottom':1}                
+
+    
+
 <GameScreen>
     name:"game"
+    canvas.before:
+        Rectangle:
+            pos:self.pos
+            size:self.size
+            source: 'resources/img/bg.png'
+
+    BoxLayout:
+        Button:
+            text: "Back"
+            background_color: 1, 1, 0, 1
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 0.5
+                root.manager.current = "start"
+            size: self.width, 50
+            size_hint: 1, None
+            pos_hint: {'bottom':1}

@@ -1,5 +1,6 @@
 #:kivy 2.0.0
 #:import NoTransition kivy.uix.screenmanager.NoTransition
+#:import BackgroundColorBehavior kivymd.uix.behaviors.backgroundcolor_behavior
 
 <RootScreen>
     transition: NoTransition()
@@ -8,41 +9,43 @@
 
 <StartScreen>
     name: "start"
-    canvas.before:
-        Rectangle:
-            pos:self.pos
-            size:self.size
-            source: 'resources/img/bg.png'
+    # background: 'resources/img/bg.png'
+    md_bg_color: 1, 0, 0, 1
+    # canvas.before:
+    #     Rectangle:
+    #         pos:self.pos
+    #         size:self.size
+    #         source: 'resources/img/bg.png'
 
     BoxLayout:
-        Button:
+        MDFillRoundFlatButton:
             text: "Start"
-            background_color: 0, 0, 1, 1
+            md_bg_color: 0, 0, 1, 1
             on_press:
                 root.manager.transition.direction = 'left'
-                root.manager.transition.duration = 0.5
+                root.manager.transition.duration = 0.1
                 root.manager.current = "game"
             size: self.width, 50
             size_hint: 1, None
-            pos_hint: {'bottom':1}                
-
-    
+            pos_hint: {'bottom':1}                 
 
 <GameScreen>
     name:"game"
-    canvas.before:
-        Rectangle:
-            pos:self.pos
-            size:self.size
-            source: 'resources/img/bg.png'
+    md_bg_color: 0, 1, 0, 1
+    # background: 'resources/img/bg.png'
+    # canvas.before:
+    #     Rectangle:
+    #         pos:self.pos
+    #         size:self.size
+    #         source: 'resources/img/bg.png'
 
     BoxLayout:
-        Button:
+        MDFillRoundFlatButton:
             text: "Back"
-            background_color: 1, 1, 0, 1
+            md_bg_color: 1, 0, 1, 1
             on_press:
                 root.manager.transition.direction = 'left'
-                root.manager.transition.duration = 0.5
+                root.manager.transition.duration = 0.1
                 root.manager.current = "start"
             size: self.width, 50
             size_hint: 1, None

@@ -2,10 +2,11 @@ from logging import root
 import kivy
 kivy.require('2.0.0')
 
-from kivy.app import App
+from kivymd.app import MDApp
 from kivy.lang.builder import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
-from kivy.uix.button import Button
+from kivy.uix.screenmanager import ScreenManager, NoTransition
+from kivymd.uix.screen import MDScreen
+from kivymd.uix.button import MDFillRoundFlatButton
 from kivy.uix.label import Label
 # from kivy.uix.recycleview import RecycleView
 # from kivy.uix.floatlayout import FloatLayout
@@ -35,11 +36,11 @@ Config.write()
 #         print (self.label_text)
 
 # StartScreen
-class StartScreen(Screen):
+class StartScreen(MDScreen):
     pass
 
 # GameScreen
-class GameScreen(Screen):
+class GameScreen(MDScreen):
     pass
 
 # RootScreen
@@ -47,7 +48,7 @@ class RootScreen(ScreenManager):
     pass
 
 # Main
-class MainApp(App):
+class MainApp(MDApp):
     def build(self):
         return RootScreen()
 

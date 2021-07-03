@@ -9,8 +9,10 @@
 
 <StartScreen>
     name: "start"
+    FitImage:
+        source: 'resources/img/bg.png'
     # background: 'resources/img/bg.png'
-    md_bg_color: 1, 0, 0, 1
+    # md_bg_color: 0, 1, 0, 1
     # canvas.before:
     #     Rectangle:
     #         pos:self.pos
@@ -20,7 +22,7 @@
     BoxLayout:
         MDFillRoundFlatButton:
             text: "Start"
-            md_bg_color: 0, 0, 1, 1
+            md_bg_color: 0, 0, 0, 1
             on_press:
                 root.manager.transition.direction = 'left'
                 root.manager.transition.duration = 0.1
@@ -31,9 +33,11 @@
 
 <GameScreen>
     name:"game"
-    md_bg_color: 0, 1, 0, 1
+    FitImage:
+        source: 'resources/img/bg.png'
+    # md_bg_color: 0, 0, 0, 1
     # background: 'resources/img/bg.png'
-    # canvas.before:
+    # canvas:
     #     Rectangle:
     #         pos:self.pos
     #         size:self.size
@@ -42,7 +46,7 @@
     BoxLayout:
         MDFillRoundFlatButton:
             text: "Back"
-            md_bg_color: 1, 0, 1, 1
+            md_bg_color: 0, 0, 1, 1
             on_press:
                 root.manager.transition.direction = 'left'
                 root.manager.transition.duration = 0.1

@@ -6,6 +6,7 @@
     transition: NoTransition()
     StartScreen:
     GameScreen:
+    SettingsScreen:
 
 <StartScreen>
     name: "start"
@@ -19,7 +20,9 @@
     #         size:self.size
     #         source: 'resources/img/bg.png'
 
-    BoxLayout:
+    MDBoxLayout:
+        orientation:'vertical'
+        spacing: 1
         MDFillRoundFlatButton:
             text: "Start"
             md_bg_color: 0, 0, 0, 1
@@ -27,6 +30,17 @@
                 root.manager.transition.direction = 'left'
                 root.manager.transition.duration = 0.1
                 root.manager.current = "game"
+            size: self.width, 50
+            size_hint: 1, None
+            pos_hint: {'bottom':1}
+
+        MDFillRoundFlatButton:
+            text: "Settings"
+            md_bg_color: 0, 0, 0, 1
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 0.1
+                root.manager.current = "settings"
             size: self.width, 50
             size_hint: 1, None
             pos_hint: {'bottom':1}                 
@@ -43,7 +57,35 @@
     #         size:self.size
     #         source: 'resources/img/bg.png'
 
-    BoxLayout:
+    MDBoxLayout:
+        size: 50, 50
+        size_hint: .9, .6
+        orientation: 'horizontal'
+        pos_hint: {'center_y':.5, 'center_x':.5}
+        FitImage:
+            source: 'resources/img/Board2.png'   
+
+    MDBoxLayout:
+        MDFillRoundFlatButton:
+            text: "Back"
+            md_bg_color: 0, 0, 1, 1
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 0.1
+                root.manager.current = "start"
+            size: self.width, 50
+            size_hint: 1, None
+            pos_hint: {'bottom':1}
+
+<SettingsScreen>
+    name:"settings"
+    FitImage:
+        source: 'resources/img/bg.png'
+    MDGridLayout:
+        size_hint: .9, .6
+        pos_hint: {'center_y':.5, 'center_x':.5}
+        md_bg_color: 1, 1, 1, 1
+    MDBoxLayout:
         MDFillRoundFlatButton:
             text: "Back"
             md_bg_color: 0, 0, 1, 1

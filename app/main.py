@@ -10,7 +10,8 @@ from kivymd.uix.button import MDFillRoundFlatButton
 from kivy.uix.label import Label
 # from kivy.uix.recycleview import RecycleView
 # from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.boxlayout import BoxLayout
+# from kivy.uix.boxlayout import BoxLayout
+from kivymd.uix.boxlayout import MDBoxLayout
 from kivy.config import Config
 from kivy.graphics import Color, Rectangle
 from kivy.properties import StringProperty
@@ -42,6 +43,10 @@ class StartScreen(MDScreen):
 
 # GameScreen
 class GameScreen(MDScreen):
+    pass
+
+# SettingsScreen
+class SettingsScreen(MDScreen):
     pass
 
 # RootScreen

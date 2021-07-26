@@ -43,6 +43,15 @@
                 root.manager.current = "settings"
             size: self.width, 50
             size_hint: 1, None
+            pos_hint: {'bottom':1}
+
+        MDFillRoundFlatButton:
+            text: "Exit"
+            md_bg_color: 0, 0, 0, 1
+            on_press:
+                app.show_exit_dialog()
+            size: self.width, 50
+            size_hint: 1, None
             pos_hint: {'bottom':1}                 
 
 <GameScreen>

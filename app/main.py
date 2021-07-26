@@ -1,5 +1,6 @@
 from logging import root
 import kivy
+from kivy.logger import BLACK
 kivy.require('2.0.0')
 
 from kivymd.app import MDApp
@@ -7,6 +8,8 @@ from kivy.lang.builder import Builder
 from kivy.uix.screenmanager import ScreenManager, NoTransition
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.button import MDFillRoundFlatButton
+from kivymd.uix.button import MDFlatButton
+from kivymd.uix.dialog import MDDialog
 from kivy.uix.label import Label
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.boxlayout import MDBoxLayout
@@ -53,8 +56,29 @@ class RootScreen(ScreenManager):
 
 # Main
 class MainApp(MDApp):
+    dialog = None
+
     def build(self):
         return RootScreen()
+
+    def show_exit_dialog(self):
+        if not self.dialog:
+            self.dialog = MDDialog(
+                title ="Exit",
+                text = "Are You Sure you want to exit ?",
+                buttons = [
+                    MDFlatButton(
+                        text="YES", text_color= self.theme_cls.primary_color, on_press = self.stop
+                    ),
+                    MDFlatButton(
+                        text="NO", text_color= self.theme_cls.primary_color, on_press = self.close_dialog
+                    )
+                ]
+            )
+        self.dialog.open()
+
+    def close_dialog(self, inst):
+        self.dialog.dismiss()
 
 if __name__ =="__main__":
     MainApp().run()

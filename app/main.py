@@ -10,9 +10,10 @@ from kivymd.uix.screen import MDScreen
 from kivymd.uix.button import MDFillRoundFlatButton
 from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
-from kivy.uix.label import Label
+from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.config import Config
 from kivy.graphics import Color, Rectangle
 from kivy.properties import StringProperty

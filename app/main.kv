@@ -22,37 +22,61 @@
 
     MDBoxLayout:
         orientation:'vertical'
-        spacing: 1
-        MDFillRoundFlatButton:
-            text: "Start"
-            md_bg_color: 0, 0, 0, 1
-            on_press:
-                root.manager.transition.direction = 'left'
-                root.manager.transition.duration = 0.1
-                root.manager.current = "game"
-            size: self.width, 50
-            size_hint: 1, None
-            pos_hint: {'bottom':1}
 
-        MDFillRoundFlatButton:
-            text: "Settings"
-            md_bg_color: 0, 0, 0, 1
-            on_press:
-                root.manager.transition.direction = 'left'
-                root.manager.transition.duration = 0.1
-                root.manager.current = "settings"
-            size: self.width, 50
-            size_hint: 1, None
-            pos_hint: {'bottom':1}
+        AnchorLayout:
+            size_hint: 1, 0.5
+            anchor_x: 'center'
+            anchor_y: 'top'
+            padding: 25
 
-        MDFillRoundFlatButton:
-            text: "Exit"
-            md_bg_color: 0, 0, 0, 1
-            on_press:
-                app.show_exit_dialog()
-            size: self.width, 50
-            size_hint: 1, None
-            pos_hint: {'bottom':1}                 
+            MDBoxLayout:
+                orientation: 'vertical'
+
+                MDLabel:
+                    text: "Magic Line"
+                    halign: "center"
+                    font_style: 'H3'
+
+        AnchorLayout:
+            size_hint: 1, 0.5
+            anchor_x: 'center'
+            anchor_y: 'bottom'
+            padding: 25
+
+            MDBoxLayout:
+                orientation: 'vertical'
+                spacing: 1
+
+                MDFillRoundFlatButton:
+                    text: "Start"
+                    md_bg_color: 0, 0, 0, 1
+                    on_press:
+                        root.manager.transition.direction = 'left'
+                        root.manager.transition.duration = 0.1
+                        root.manager.current = "game"
+                    size: self.width, 50
+                    size_hint: .75, None
+                    pos_hint: {'center_x':.5, 'center_y':.5}
+
+                MDFillRoundFlatButton:
+                    text: "Settings"
+                    md_bg_color: 0, 0, 0, 1
+                    on_press:
+                        root.manager.transition.direction = 'left'
+                        root.manager.transition.duration = 0.1
+                        root.manager.current = "settings"
+                    size: self.width, 50
+                    size_hint: .75, None
+                    pos_hint: {'center_x':.5, 'center_y':.5}
+
+                MDFillRoundFlatButton:
+                    text: "Exit"
+                    md_bg_color: 0, 0, 0, 1
+                    on_press:
+                        app.show_exit_dialog()
+                    size: self.width, 50
+                    size_hint: .75, None
+                    pos_hint: {'center_x':.5, 'center_y':.5}            
 
 <GameScreen>
     name:"game"

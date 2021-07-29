@@ -1,11 +1,10 @@
 from logging import root
 import kivy
+from kivy import clock
 from kivy.logger import BLACK
 kivy.require('2.0.0')
 
 from kivymd.app import MDApp
-from kivy.lang.builder import Builder
-from kivy.uix.screenmanager import ScreenManager, NoTransition
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.button import MDFillRoundFlatButton
 from kivymd.uix.button import MDFlatButton
@@ -13,12 +12,13 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.boxlayout import MDBoxLayout
-from kivy.uix.anchorlayout import AnchorLayout
 from kivy.config import Config
-from kivy.graphics import Color, Rectangle
-from kivy.properties import StringProperty
+from kivy.clock import Clock
 from kivy.core.image import Image
 from kivy.core.window import Window
+from kivy.lang.builder import Builder
+from kivy.uix.screenmanager import ScreenManager
+from kivy.uix.anchorlayout import AnchorLayout
 
 ## Window Size
 
@@ -26,6 +26,7 @@ Config.set('graphics', 'width', 400)
 Config.set('graphics', 'height', 600)
 Config.write()
 Window.size = (400,600)
+Clock.max_iteration = 20
 
 # class Game(BoxLayout):
 #     label_text = StringProperty()
@@ -45,7 +46,9 @@ class StartScreen(MDScreen):
 
 # GameScreen
 class GameScreen(MDScreen):
-    pass
+    def set_screen(self):
+        MDApp.get_running_app().root.current = "start"
+        MDApp.get_running_app().root.transition.direction = "right"
 
 # SettingsScreen
 class SettingsScreen(MDScreen):

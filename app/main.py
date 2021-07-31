@@ -12,6 +12,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.selectioncontrol import MDCheckbox
 from kivy.config import Config
 from kivy.clock import Clock
 from kivy.core.image import Image
@@ -52,7 +53,10 @@ class GameScreen(MDScreen):
 
 # SettingsScreen
 class SettingsScreen(MDScreen):
-    pass
+    def set_screen(self):
+        MDApp.get_running_app().root.current = "start"
+        MDApp.get_running_app().root.transition.direction = "right"
+
 
 # RootScreen
 class RootScreen(ScreenManager):
@@ -83,6 +87,12 @@ class MainApp(MDApp):
 
     def close_dialog(self, inst):
         self.dialog.dismiss()
+
+    def on_checkbox_active(self, instance, value):
+        if value:
+            print('The checkbox', instance, 'is active', 'and', instance.state, 'state')
+        else:
+            print('The checkbox', instance, 'is inactive', 'and', instance.state, 'state')
 
 if __name__ =="__main__":
     MainApp().run()

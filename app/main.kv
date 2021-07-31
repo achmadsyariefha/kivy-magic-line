@@ -127,10 +127,19 @@
         orientation: "vertical"
 
         AnchorLayout:
+            size_hint: 1, 0.25
+            anchor_x: 'center'
+            anchor_y: 'top'
+
+            MDToolbar:
+                title: "Settings"
+                left_action_items: [["arrow-left", lambda x: root.set_screen()]]
+
+        AnchorLayout:
             size_hint: 1, 0.75
             anchor_x: 'center'
             anchor_y: 'center'
-            padding: 25, 50, 25, 25
+            padding: 25, 0, 25, 75
 
             MDBoxLayout:
                 md_bg_color: 1, 1, 1, 1
@@ -170,29 +179,36 @@
                         MDBoxLayout:
                             id: game_difficulty
                             orientation: 'horizontal'
+                            padding: 0, 0, 0, 25
 
                             MDBoxLayout:
                                 orientation: 'vertical'
+                                padding: 0, 25, 0, 0
+                                spacing: 5
                         
                                 MDCheckbox:
-                                    size_hint: None, None
-                                    size: "48dp", "48dp"
-                                    pos_hint: {'center_y':.5, 'center_x':.5}
+                                    size_hint: 1, 0.2
+                                    size: "24dp", "28dp"
+                                    # pos_hint: {'center_y':.5, 'center_x':.5}
+                                    on_active: app.on_checkbox_active(*args)
+                                    active: True
 
                                 MDCheckbox:
-                                    size_hint: None, None
-                                    size: "48dp", "48dp"
-                                    pos_hint: {'center_y':.5, 'center_x':.5}
+                                    size_hint: 1, 0.2
+                                    size: "24dp", "28dp"
+                                    on_active: app.on_checkbox_active(*args)
+                                    # pos_hint: {'center_y':.5, 'center_x':.5}
 
                                 MDCheckbox:
-                                    size_hint: None, None
-                                    size: "48dp", "48dp"
-                                    pos_hint: {'center_y':.5, 'center_x':.5}
+                                    size_hint: 1, 0.2
+                                    size: "24dp", "28dp"
+                                    on_active: app.on_checkbox_active(*args)
+                                    # pos_hint: {'center_y':.5, 'center_x':.5}
                             
                             MDBoxLayout:
                                 orientation: 'vertical'
-                                # padding: 0, 25, 0, 25
-                                spacing: 40
+                                padding: 0, 50, 0, 10
+                                spacing: 28
 
                                 MDLabel:
                                     text: "Easy"
@@ -202,20 +218,4 @@
 
                                 MDLabel:
                                     text:"Hard"
-
-        AnchorLayout:
-            size_hint: 1, 0.25
-            anchor_x: 'center'
-            anchor_y: 'bottom'
-            padding: 25, 25, 25, 50
-
-            MDFillRoundFlatButton:
-                text: "Back"
-                md_bg_color: 0, 0, 0, 1
-                on_press:
-                    root.manager.transition.direction = 'right'
-                    root.manager.transition.duration = 0.1
-                    root.manager.current = "start"
-                size: self.width, 50
-                size_hint: .75, None
 

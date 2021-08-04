@@ -2,6 +2,7 @@ from logging import root
 import kivy
 from kivy import clock
 from kivy.logger import BLACK
+from kivymd.uix.behaviors import backgroundcolor_behavior
 kivy.require('2.0.0')
 
 from kivymd.app import MDApp
@@ -20,6 +21,7 @@ from kivy.core.window import Window
 from kivy.lang.builder import Builder
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.button import Button
 
 ## Window Size
 
@@ -61,6 +63,7 @@ class SettingsScreen(MDScreen):
 # RootScreen
 class RootScreen(ScreenManager):
     pass
+    
 
 # Main
 class MainApp(MDApp):
@@ -87,6 +90,22 @@ class MainApp(MDApp):
 
     def close_dialog(self, inst):
         self.dialog.dismiss()
+
+    def on_start(self):
+        board = self.root.get_screen("game").ids.game_board
+        for i in range(5):
+            board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
+            for j in range(10):
+                board_row.add_widget(Button(
+                    background_normal="",
+                    background_color=self.get_color(i, j),
+                    border = (0, 16, 0, 16)
+                ))
+
+            board.add_widget(board_row)
+
+    def get_color(self, i ,j):
+        return [1,1,1,1]
 
     def on_checkbox_active(self, instance, value):
         if value:

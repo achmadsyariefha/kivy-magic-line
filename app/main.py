@@ -1,6 +1,7 @@
 from logging import root
 import kivy
 from kivy import clock
+from kivy import app
 from kivy.logger import BLACK
 from kivymd.uix.behaviors import backgroundcolor_behavior
 kivy.require('2.0.0')
@@ -52,6 +53,7 @@ class GameScreen(MDScreen):
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
+        MainApp.run_game.cancel()
 
 # SettingsScreen
 class SettingsScreen(MDScreen):
@@ -64,6 +66,18 @@ class SettingsScreen(MDScreen):
 class RootScreen(ScreenManager):
     pass
     
+def boardGame(self):
+    board = MDApp.get_running_app().root.get_screen("game").ids.game_board
+    for i in range(10):
+        board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
+        for j in range(10):
+            board_row.add_widget(Button(
+                background_normal="",
+                background_color=MainApp.get_color(i, j),
+                border = (0, 16, 0, 16)
+            ))
+
+        board.add_widget(board_row)
 
 # Main
 class MainApp(MDApp):
@@ -90,21 +104,25 @@ class MainApp(MDApp):
 
     def close_dialog(self, inst):
         self.dialog.dismiss()
+    
+    run_game = Clock.create_trigger(boardGame)
+    
 
-    def on_start(self):
-        board = self.root.get_screen("game").ids.game_board
-        for i in range(5):
-            board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
-            for j in range(10):
-                board_row.add_widget(Button(
-                    background_normal="",
-                    background_color=self.get_color(i, j),
-                    border = (0, 16, 0, 16)
-                ))
 
-            board.add_widget(board_row)
+    # def on_start(self):
+    #     board = self.root.get_screen("game").ids.game_board
+    #     for i in range(5):
+    #         board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
+    #         for j in range(10):
+    #             board_row.add_widget(Button(
+    #                 background_normal="",
+    #                 background_color=self.get_color(i, j),
+    #                 border = (0, 16, 0, 16)
+    #             ))
 
-    def get_color(self, i ,j):
+    #         board.add_widget(board_row)
+
+    def get_color(i ,j):
         return [1,1,1,1]
 
     def on_checkbox_active(self, instance, value):

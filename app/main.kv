@@ -7,6 +7,7 @@
     StartScreen:
     GameScreen:
     SettingsScreen:
+    HelpScreen:
 
 <StartScreen>
     name: "start"
@@ -24,7 +25,7 @@
         orientation:'vertical'
 
         AnchorLayout:
-            size_hint: 1, 0.5
+            size_hint: 1, 0.4
             anchor_x: 'center'
             anchor_y: 'top'
             padding: 25, 50, 25, 25
@@ -38,7 +39,7 @@
                     font_style: 'H3'
 
         AnchorLayout:
-            size_hint: 1, 0.5
+            size_hint: 1, 0.6
             anchor_x: 'center'
             anchor_y: 'bottom'
             padding: 25, 25, 25, 50
@@ -54,7 +55,7 @@
                         root.manager.transition.direction = 'left'
                         root.manager.transition.duration = 0.1
                         root.manager.current = "game"
-                        app.run_game()
+                        app.start_game()
                     size: self.width, 50
                     size_hint: .75, None
                     pos_hint: {'center_x':.5, 'center_y':.5}
@@ -66,6 +67,17 @@
                         root.manager.transition.direction = 'left'
                         root.manager.transition.duration = 0.1
                         root.manager.current = "settings"
+                    size: self.width, 50
+                    size_hint: .75, None
+                    pos_hint: {'center_x':.5, 'center_y':.5}
+
+                MDFillRoundFlatButton:
+                    text: "Help"
+                    md_bg_color: 0, 0, 0, 1
+                    on_press:
+                        root.manager.transition.direction = 'left'
+                        root.manager.transition.duration = 0.1
+                        root.manager.current = "help"
                     size: self.width, 50
                     size_hint: .75, None
                     pos_hint: {'center_x':.5, 'center_y':.5}
@@ -217,3 +229,30 @@
                                 MDLabel:
                                     text:"Hard"
 
+<HelpScreen>
+    name:"help"
+    FitImage:
+        source: 'resources/img/bg.png'
+    
+    MDBoxLayout:
+        orientation: "vertical"
+
+        AnchorLayout:
+            size_hint: 1, 0.25
+            anchor_x: 'center'
+            anchor_y: 'top'
+
+            MDToolbar:
+                title: "Help"
+                left_action_items: [["arrow-left", lambda x: root.set_screen()]]
+
+        AnchorLayout:
+            size_hint: 1, 0.75
+            anchor_x: 'center'
+            anchor_y: 'center'
+            padding: 25, 0, 25, 75
+
+            MDBoxLayout:
+                md_bg_color: 1, 1, 1, 1
+                orientation: 'vertical'
+                padding: 25, 0, 25, 0

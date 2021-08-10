@@ -53,7 +53,6 @@ class GameScreen(MDScreen):
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
-        MainApp.run_game.cancel()
 
 # SettingsScreen
 class SettingsScreen(MDScreen):
@@ -61,6 +60,13 @@ class SettingsScreen(MDScreen):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
 
+# HelpScreen
+
+class HelpScreen(MDScreen):
+    def set_screen(self):
+        MDApp.get_running_app().root.current = "start"
+        MDApp.get_running_app().root.transition.direction = "right"
+        
 
 # RootScreen
 class RootScreen(ScreenManager):
@@ -78,6 +84,7 @@ def boardGame(self):
             ))
 
         board.add_widget(board_row)
+
 
 # Main
 class MainApp(MDApp):
@@ -105,8 +112,14 @@ class MainApp(MDApp):
     def close_dialog(self, inst):
         self.dialog.dismiss()
     
-    run_game = Clock.create_trigger(boardGame)
-    
+    def start_game(self):
+        self.clock_variable = Clock.schedule_once(boardGame)
+        if self.clock_variable is None:
+            pass
+        else:
+            self.clock_variable.cancel()
+            self.clock_variable = Clock.schedule_once(boardGame)
+
 
 
     # def on_start(self):

@@ -32,8 +32,11 @@ Config.set('graphics', 'height', 600)
 Config.write()
 Window.size = (400,600)
 Clock.max_iteration = 20
+
+## Background Music
+
 sound = SoundLoader.load('resources/bgm/beach_party.mp3')
-sound.play()
+# sound.play()
 
 # StartScreen
 class StartScreen(MDScreen):

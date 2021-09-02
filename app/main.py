@@ -21,9 +21,12 @@ from kivy.core.image import Image
 from kivy.core.window import Window
 from kivy.core.audio import SoundLoader
 from kivy.lang.builder import Builder
+from kivy.properties import ObjectProperty
+from kivy.properties import NumericProperty
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.button import Button
+from kivy.uix.widget import Widget
 
 ## Window Size
 
@@ -65,6 +68,23 @@ class HelpScreen(MDScreen):
 
 # RootScreen
 class RootScreen(ScreenManager):
+    pass
+
+# A GameBoard
+class GameBoard(Widget):
+    # index = NumericProperty(0.0)
+    pass
+
+# GameBoards
+class GameBoards(Widget):
+    # boards = ObjectProperty(None)
+    # def game_boards(self, *args):
+    #     pass
+    pass
+
+# GameBall
+class GameBall(Image):
+    # ball = ObjectProperty(None)
     pass
 
 def boardGame(self):

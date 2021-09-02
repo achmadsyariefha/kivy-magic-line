@@ -175,19 +175,19 @@
                         orientation: 'vertical'
 
                         MDSlider:
-                            id: bgm_slider
+                            id: "bgm_slider"
                             min: 0
                             max: 100
                             value: 50
 
                         MDSlider:
-                            id: sfx_slider
+                            id: "sfx_slider"
                             min: 0
                             max: 100
                             value: 50
 
                         MDBoxLayout:
-                            id: game_difficulty
+                            id: "game_difficulty"
                             orientation: 'horizontal'
                             padding: 0, 0, 0, 25
 
@@ -267,3 +267,13 @@
                     text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                     halign: "justify"
                     font_style: 'Body1'
+
+<GameBoard>
+
+<GameBoards>
+    board: game_boards
+    MDGridLayout:
+        id: game_boards
+        cols: 10
+        rows: 10
+        line_color: 0, 0, 0, 1

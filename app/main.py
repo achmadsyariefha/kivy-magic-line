@@ -4,7 +4,7 @@ from kivy import clock
 from kivy import app
 from kivy.logger import BLACK
 from kivymd.uix.behaviors import backgroundcolor_behavior
-kivy.require('2.0.0')
+kivy.require('1.0.0')
 
 from kivymd.app import MDApp
 from kivymd.uix.screen import MDScreen
@@ -23,6 +23,7 @@ from kivy.core.audio import SoundLoader
 from kivy.lang.builder import Builder
 from kivy.properties import ObjectProperty
 from kivy.properties import NumericProperty
+from kivy.properties import StringProperty
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.button import Button
@@ -39,7 +40,7 @@ Clock.max_iteration = 20
 ## Background Music
 
 sound = SoundLoader.load('resources/bgm/beach_party.mp3')
-# sound.play()
+sound.play()
 
 # StartScreen
 class StartScreen(MDScreen):
@@ -47,6 +48,11 @@ class StartScreen(MDScreen):
 
 # GameScreen
 class GameScreen(MDScreen):
+    def __init__(self, **kwargs):
+        super(GameScreen, self).__init__(**kwargs)
+        self.game = GameBoard()
+        self.add_widget(self.game)
+
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
@@ -54,9 +60,27 @@ class GameScreen(MDScreen):
 
 # SettingsScreen
 class SettingsScreen(MDScreen):
+    soundVolume = NumericProperty(0.0)
+
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
+
+    def on_bgm_slider_value(self, widget):
+        soundVolume = float(widget.value/100)
+        sound.volume = soundVolume
+        # print("Slider : "+ str(widget.value/100))
+
+    def on_sfx_slider_value(self, widget):
+        # soundVolume = float(widget.value/100)
+        # sound.volume = soundVolume
+        print("Slider : "+ str(widget.value/100))
+
+    def on_checkbox_active(self, instance, value):
+        if value:
+            print('The checkbox', instance, 'is', value, 'and', instance.state, 'state')
+        else:
+            print('The checkbox', instance, 'is', value, 'and', instance.state, 'state')
 
 # HelpScreen
 
@@ -70,32 +94,22 @@ class HelpScreen(MDScreen):
 class RootScreen(ScreenManager):
     pass
 
-# A GameBoard
-class GameBoard(Widget):
-    # index = NumericProperty(0.0)
-    pass
+# Tile
+class Tile(Widget):
+    index = NumericProperty(0.0)
+    source_image = StringProperty('')
 
-# GameBoards
-class GameBoards(Widget):
-    # boards = ObjectProperty(None)
-    # def game_boards(self, *args):
-    #     pass
-    pass
+# GameBoard
+class GameBoard(Widget):
+    game_board = ObjectProperty(None)
+    def on_game_board(self, *args):
+        if self.game_board:
+            for x in range(10*10):
+                self.game_board.add_widget(Tile(index=x))
 
 # GameBall
-class GameBall(Image):
-    # ball = ObjectProperty(None)
-    pass
-
-def boardGame(self):
-    board = MDApp.get_running_app().root.get_screen("game").ids.game_board
-    for i in range(100):
-        board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
-        board_row.add_widget(Button(
-            background_normal="",
-            background_color=MainApp.get_color(i)
-        ))
-        board.add_widget(board_row)
+# class GameBall(Image):
+#     ball = ObjectProperty(None)
 
 # Main
 class MainApp(MDApp):
@@ -122,18 +136,25 @@ class MainApp(MDApp):
 
     def close_dialog(self, inst):
         self.dialog.dismiss()
+
+    # def boardGame(self, dt):
+    #     board = MDApp.get_running_app().root.get_screen("game").ids.game_board
+    #     for i in range(100):
+    #         board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
+    #         board_row.add_widget(Button(
+    #             background_normal="",
+    #             background_color=MainApp.get_color(i)
+    #         ))
+    #         board.add_widget(board_row)
+    #     print ('call number'), dt
     
-    def start_game(self):
-        self.clock_variable = Clock.schedule_once(boardGame, -1)
+    # def start_game(self):
+    #     self.clock_variable = None
+    #     while self.clock_variable == None:
+    #         self.clock_variable = Clock.schedule_once(self.boardGame, -1)
 
-    def get_color(i):
-        return [1,1,1,1]
-
-    def on_checkbox_active(self, instance, value):
-        if value:
-            print('The checkbox', instance, 'is active', 'and', instance.state, 'state')
-        else:
-            print('The checkbox', instance, 'is inactive', 'and', instance.state, 'state')
+    # def get_color(i):
+    #     return [1,1,1,1]
 
 if __name__ =="__main__":
     MainApp().run()

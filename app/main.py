@@ -14,6 +14,7 @@ from kivymd.uix.dialog import MDDialog
 from kivymd.uix.label import MDLabel
 from kivymd.uix.menu import MDDropdownMenu
 from kivymd.uix.boxlayout import MDBoxLayout
+from kivymd.uix.gridlayout import MDGridLayout
 from kivymd.uix.selectioncontrol import MDCheckbox
 from kivy.config import Config
 from kivy.clock import Clock
@@ -26,21 +27,24 @@ from kivy.properties import NumericProperty
 from kivy.properties import StringProperty
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.button import Button
 from kivy.uix.widget import Widget
 
-## Window Size
+## Window Configuration
 
 Config.set('graphics', 'width', 400)
 Config.set('graphics', 'height', 600)
+Config.set('input', 'mouse', 'mouse,disable_multitouch')
 Config.write()
 Window.size = (400,600)
+Window.borderless = True
 Clock.max_iteration = 20
 
 ## Background Music
 
 sound = SoundLoader.load('resources/bgm/beach_party.mp3')
-sound.play()
+# sound.play()
 
 # StartScreen
 class StartScreen(MDScreen):
@@ -48,15 +52,27 @@ class StartScreen(MDScreen):
 
 # GameScreen
 class GameScreen(MDScreen):
+    game_grid = ObjectProperty(None)
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
-        self.game = GameBoard()
-        self.add_widget(self.game)
+        Clock.schedule_once(self._finish_init)
+
+    def _finish_init(self, dt):
+        self.game_grid.cols = 10
+        for i in range(100):
+            board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
+            board_row.add_widget(Button(
+                background_normal="",
+                background_color=GameScreen.get_color(i)
+                ))
+            self.game_grid.add_widget(board_row)
+    
+    def get_color(i):
+        return [1,1,1,1]
 
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
-        # MDApp.get_running_app().stop()
 
 # SettingsScreen
 class SettingsScreen(MDScreen):
@@ -83,7 +99,6 @@ class SettingsScreen(MDScreen):
             print('The checkbox', instance, 'is', value, 'and', instance.state, 'state')
 
 # HelpScreen
-
 class HelpScreen(MDScreen):
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
@@ -94,22 +109,9 @@ class HelpScreen(MDScreen):
 class RootScreen(ScreenManager):
     pass
 
-# Tile
-class Tile(Widget):
-    index = NumericProperty(0.0)
-    source_image = StringProperty('')
-
-# GameBoard
-class GameBoard(Widget):
-    game_board = ObjectProperty(None)
-    def on_game_board(self, *args):
-        if self.game_board:
-            for x in range(10*10):
-                self.game_board.add_widget(Tile(index=x))
-
 # GameBall
-# class GameBall(Image):
-#     ball = ObjectProperty(None)
+class GameBall(Widget):
+    ball = ObjectProperty(None)
 
 # Main
 class MainApp(MDApp):
@@ -136,25 +138,6 @@ class MainApp(MDApp):
 
     def close_dialog(self, inst):
         self.dialog.dismiss()
-
-    # def boardGame(self, dt):
-    #     board = MDApp.get_running_app().root.get_screen("game").ids.game_board
-    #     for i in range(100):
-    #         board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
-    #         board_row.add_widget(Button(
-    #             background_normal="",
-    #             background_color=MainApp.get_color(i)
-    #         ))
-    #         board.add_widget(board_row)
-    #     print ('call number'), dt
-    
-    # def start_game(self):
-    #     self.clock_variable = None
-    #     while self.clock_variable == None:
-    #         self.clock_variable = Clock.schedule_once(self.boardGame, -1)
-
-    # def get_color(i):
-    #     return [1,1,1,1]
 
 if __name__ =="__main__":
     MainApp().run()

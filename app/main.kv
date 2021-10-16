@@ -2,6 +2,7 @@
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 #:import BackgroundColorBehavior kivymd.uix.behaviors.backgroundcolor_behavior
 
+
 <Check@MDCheckbox>:
     group: 'group'
     size_hint: None, None
@@ -98,6 +99,7 @@
 
 <GameScreen>
     name:"game"
+    game_grid: game_grid
     FitImage:
         source: 'resources/img/bg.png'
     
@@ -113,33 +115,24 @@
                 title: "Magic Line"
                 left_action_items: [["arrow-left", lambda x: root.set_screen()]]
 
-            # MDFillRoundFlatButton:
-            #     text: "Back"
-            #     md_bg_color: 0, 0, 1, 1
-            #     on_press:
-            #         root.manager.transition.direction = 'left'
-            #         root.manager.transition.duration = 0.1
-            #         root.manager.current = "start"
-            #     size: self.width, 50
-            #     size_hint: 1, None
-
-        AnchorLayout:
-            size_hint: 1, 0.7
-            anchor_x: 'center'
-            anchor_y: 'top'
-
-            # MDGridLayout:
-            #     id: game_board
-            #     cols: 10
-            #     line_color: 0, 0, 0, 1
-
-            MDBoxLayout:
-                size: 50, 50
-                size_hint: .9, .9
-                orientation: 'horizontal'
-                pos_hint: {'center_y':.5, 'center_x':.5}
-                Image:
+        FloatLayout:
+            size: 25, 25
+            size_hint: .9, .5
+            pos_hint: {'center_x':0.5, 'center_y':0.5}
+            # Image:
+            #     source: 'resources/img/Board2.png'
+            canvas.before:
+                BorderImage:
                     source: 'resources/img/Board2.png'
+                    pos: self.pos
+                    size: self.size
+                    auto_scale: 'y_only'
+                    # effects: ew.FXAAEffect()
+            
+            MDGridLayout:
+                id: game_grid
+                cols: 10
+                line_color: 0, 0, 0, 1
 
 <SettingsScreen>
     name:"settings"
@@ -286,23 +279,9 @@
                     halign: "justify"
                     font_style: 'Body1'
 
-<Tile>
-    source_image: 'resources/img/tile.png'
-    canvas.before:
-        BorderImage:
-            source: self.source_image
+<GameBall>
+    size: 10, 10
+    canvas:
+        Ellipse:
             pos: self.pos
             size: self.size
-
-
-<GameBoard>
-    game_board: game_board_id
-    canvas.before:
-        BorderImage:
-            source: 'resources/img/Board2.png'
-            pos: self.pos
-            size: self.size
-    GridLayout:
-        id: game_board_id
-        cols: 10
-        rows: 10

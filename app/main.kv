@@ -100,6 +100,8 @@
 <GameScreen>
     name:"game"
     game_grid: game_grid
+    game_time: game_time
+    game_score: game_score
     FitImage:
         source: 'resources/img/bg.png'
     
@@ -107,17 +109,51 @@
         orientation: 'vertical'
 
         AnchorLayout:
-            size_hint: 1, 0.3
+            size_hint: 1, 0.1
             anchor_x: 'center'
             anchor_y: 'top'
 
             MDToolbar:
                 title: "Magic Line"
                 left_action_items: [["arrow-left", lambda x: root.set_screen()]]
+        
+        AnchorLayout:
+            size_hint: 1, 0.1
+            anchor_x: 'center'
+            anchor_y:'top'
+
+            MDBoxLayout:
+                orientation: 'horizontal'
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    md_bg_color: 1, 1, 1, 1
+
+                    MDLabel:
+                        text: "Time"
+                        halign: 'center'
+
+                    MDLabel:
+                        id: game_time
+                        halign: 'center'
+                        text: "00:00:00"
+
+                MDBoxLayout:
+                    orientation: 'vertical'
+                    md_bg_color: 1, 1, 1, 1
+
+                    MDLabel:
+                        text: "Score"
+                        halign: 'center'
+
+                    MDLabel:
+                        id: game_score
+                        halign: 'center'
+                        text: "0"
 
         FloatLayout:
             size: 25, 25
-            size_hint: .9, .5
+            size_hint: 1, .5
             pos_hint: {'center_x':0.5, 'center_y':0.5}
             # Image:
             #     source: 'resources/img/Board2.png'
@@ -133,6 +169,7 @@
                 id: game_grid
                 cols: 10
                 line_color: 0, 0, 0, 1
+                pos_hint: {'center_x':0.5}
 
 <SettingsScreen>
     name:"settings"
@@ -278,10 +315,3 @@
                     text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
                     halign: "justify"
                     font_style: 'Body1'
-
-<GameBall>
-    size: 10, 10
-    canvas:
-        Ellipse:
-            pos: self.pos
-            size: self.size

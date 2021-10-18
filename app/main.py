@@ -3,6 +3,7 @@ import kivy
 from kivy import clock
 from kivy import app
 from kivy.logger import BLACK
+from kivymd.uix import button
 from kivymd.uix.behaviors import backgroundcolor_behavior
 kivy.require('1.0.0')
 
@@ -52,23 +53,40 @@ class StartScreen(MDScreen):
 
 # GameScreen
 class GameScreen(MDScreen):
+    grid = []
+    isGameOver = False
+    difficulty = ''
+    clicked = False
     game_grid = ObjectProperty(None)
+    # game_time = NumericProperty()
+    # game_score = NumericProperty()
+
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
+        color = 0
         Clock.schedule_once(self._finish_init)
 
     def _finish_init(self, dt):
         self.game_grid.cols = 10
         for i in range(100):
-            board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,1))
-            board_row.add_widget(Button(
+            board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,0))
+            board_button = Button(
                 background_normal="",
                 background_color=GameScreen.get_color(i)
-                ))
+                )
+            board_button.bind(on_press = self.move_object)
+            board_row.add_widget(board_button)
             self.game_grid.add_widget(board_row)
+
+    def move_object(self, instance):
+        if instance.state == 'down':
+            self.clicked = True
+        elif instance.state == 'normal':
+            self.clicked = False
+        print('Button', instance, 'has been', instance.state, 'clicked =', self.clicked)
     
     def get_color(i):
-        return [1,1,1,1]
+        return [1,1,1,0]
 
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
@@ -92,6 +110,9 @@ class SettingsScreen(MDScreen):
         # sound.volume = soundVolume
         print("Slider : "+ str(widget.value/100))
 
+    def on_sfx_switch_value(self, widget):
+        pass
+
     def on_checkbox_active(self, instance, value):
         if value:
             print('The checkbox', instance, 'is', value, 'and', instance.state, 'state')
@@ -110,13 +131,13 @@ class RootScreen(ScreenManager):
     pass
 
 # GameBall
-class GameBall(Widget):
-    ball = ObjectProperty(None)
+
 
 # Main
 class MainApp(MDApp):
-    dialog = None
 
+    dialog = None
+    
     def build(self):
         return RootScreen()
 
@@ -138,6 +159,32 @@ class MainApp(MDApp):
 
     def close_dialog(self, inst):
         self.dialog.dismiss()
+
+# Player
+class Player(object):
+    name = ''
+    score = 0
+    time = 0
+
+    def __init__(self, name, score, time):
+        self.name = name
+        self.score = score
+        self.time = time
+        return
+
+# GameBall
+class GameBall(object):
+    color = ''
+    button = 0
+    rows = 0
+    column = 0
+
+    def __init__(self, color, button, rows, column):
+        self.color = color
+        self.button = button
+        self.rows = rows
+        self.column = column
+        return
 
 if __name__ =="__main__":
     MainApp().run()

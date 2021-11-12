@@ -8,6 +8,13 @@
     size_hint: None, None
     size: dp(48), dp(48)
 
+<GameBall@FloatLayout>:
+    size_hint: None, None
+    size: dp(48), dp(48)
+
+    Image:
+        source: 'resources/img/black.png'
+
 <RootScreen>
     transition: SlideTransition()
     StartScreen:
@@ -171,6 +178,8 @@
                 line_color: 0, 0, 0, 1
                 pos_hint: {'center_x':0.5}
 
+            
+
 <SettingsScreen>
     name:"settings"
     FitImage:
@@ -217,12 +226,19 @@
                     MDBoxLayout:
                         orientation: 'vertical'
 
-                        MDSlider:
-                            id: "bgm_slider"
-                            min: 0
-                            max: 100
-                            value: 50
-                            on_value: root.on_bgm_slider_value(self)
+                        MDBoxLayout:
+                            orientation: 'horizontal'
+                            padding: 0, 0, 0, 50
+
+                            SoundToggle:
+                                text: "On"
+                                group: "bgm"
+                                state: "down"
+
+                            SoundToggle:
+                                text: "Off"
+                                group: "bgm"
+                                state: "normal"
 
                         MDSlider:
                             id: "sfx_slider"

@@ -164,17 +164,19 @@
             pos_hint: {'center_x':0.5, 'center_y':0.5}
             # Image:
             #     source: 'resources/img/Board2.png'
-            canvas.before:
-                BorderImage:
-                    source: 'resources/img/Board2.png'
-                    pos: self.pos
-                    size: self.size
-                    auto_scale: 'y_only'
+            # canvas.before:
+            #     BorderImage:
+            #         source: 'resources/img/Board2.png'
+            #         pos: self.pos
+            #         size: self.size
+            #         auto_scale: 'y_only'
                     # effects: ew.FXAAEffect()
             
-            MDGridLayout:
+            MDBoxLayout:
                 id: game_grid
-                cols: 10
+                orientation: "vertical"
+                # cols: 10
+                # rows: 10
                 line_color: 0, 0, 0, 1
                 pos_hint: {'center_x':0.5}
 
@@ -182,6 +184,8 @@
 
 <SettingsScreen>
     name:"settings"
+    bgm_off: bgm_off
+    bgm_on: bgm_on
     FitImage:
         source: 'resources/img/bg.png'
     
@@ -231,11 +235,13 @@
                             padding: 0, 0, 0, 50
 
                             SoundToggle:
+                                id: bgm_on
                                 text: "On"
                                 group: "bgm"
                                 state: "down"
 
                             SoundToggle:
+                                id: bgm_off
                                 text: "Off"
                                 group: "bgm"
                                 state: "normal"

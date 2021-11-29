@@ -1,4 +1,5 @@
 from logging import root
+from random import randint
 import kivy
 from kivy import clock
 from kivy import app
@@ -59,14 +60,21 @@ class GameScreen(MDScreen):
 
     def _finish_init(self, dt):
         self.game_grid.cols = 10
-        for i in range(100):
-            board_row = MDBoxLayout(orientation = "horizontal", line_color= (0,0,0,0))
-            board_button = Button(
-                background_normal="",
-                background_color=GameScreen.get_color(i)
-                )
-            board_button.bind(on_press = self.move_object)
-            board_row.add_widget(board_button)
+        self.game_grid.rows = 10
+        for i in range(self.game_grid.cols):
+            board_row = MDBoxLayout(orientation = "horizontal", 
+                                    line_color= (0,0,0,1))
+            for j in range(self.game_grid.rows):
+                board_col = MDBoxLayout(orientation = "vertical",
+                                        md_bg_color=(1,1,1,1),
+                                        line_color= (0,0,0,1))
+                board_button = Button(background_normal=self.get_color(i,j), 
+                                      border = (0,0,0,0),
+                                      background_color=(1,1,1,1))
+                board_button.bind(on_release = self.move_object)
+                board_button.bind(on_press = self.move_object)
+                board_col.add_widget(board_button)
+                board_row.add_widget(board_col)
             self.game_grid.add_widget(board_row)
 
     def move_object(self, instance):
@@ -76,8 +84,15 @@ class GameScreen(MDScreen):
             self.clicked = False
         print('Button', instance, 'has been', instance.state, 'clicked =', self.clicked)
     
-    def get_color(i):
-        return [1,1,1,0]
+    def get_color(self, i, j):
+        color_list = ['aqua', 'black', 'blue', 'dark_green', 'light_green', 'orange', 'pink', 'red', 'yellow']
+        random_color = randint(0, len(color_list)-1)
+        random_col = randint(0, 9)
+        random_row = randint(0, 9)
+        if i == random_row or j == random_col:
+            return 'resources/img/'+color_list[random_color]+'.png'
+        else:
+            return ''
 
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
@@ -125,9 +140,10 @@ class RootScreen(ScreenManager):
 
 # Toggle Sound
 class SoundToggle(MDRectangleFlatButton, MDToggleButton):
-    state = StringProperty(None)
     active = BooleanProperty(False)
     sound = ObjectProperty(None, allownone=True)
+    bgm_on = ObjectProperty(None)
+    bgm_off = ObjectProperty(None)
     def __init__(self, **kwargs):
         super(SoundToggle, self).__init__(**kwargs)
         self.background_down = (0, 0, 1, 1)
@@ -135,13 +151,15 @@ class SoundToggle(MDRectangleFlatButton, MDToggleButton):
         self.font_size = "12sp"
         self.allow_no_selection = False
         self.sound = BackgroundMusic()
-        self.bind(state = self.bgm_on_state)
+        # self.bind(state = self.bgm_on_state)
         self.sfx = SoundEffects()
 
-    def bgm_on_state(self, instance, value):
-        if self.state == 'down':
+    def bgm_on_state(self, bgm, state):
+        if self.bgm_on.state == 'down':
+            self.bgm_off.state = 'normal'
             self.sound.play()
-        else:
+        elif self.bgm_off.state == 'down':
+            self.bgm_on.state = 'normal'
             self.sound.stop()
 
     def sfx_on_state(self, widget, value):

@@ -27,6 +27,8 @@ from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
 from kivymd.uix.dialog import MDDialog
 from kivymd.uix.boxlayout import MDBoxLayout
 
+from algorithm import astar
+
 sound = ObjectProperty(None, allownone=True)
 
 ## Background Music
@@ -50,6 +52,7 @@ class GameScreen(MDScreen):
     difficulty = ''
     clicked = False
     game_grid = ObjectProperty(None)
+    
     # game_time = NumericProperty()
     # game_score = NumericProperty()
 
@@ -61,6 +64,7 @@ class GameScreen(MDScreen):
     def _finish_init(self, dt):
         self.game_grid.cols = 10
         self.game_grid.rows = 10
+        self.presstime = 1.0
         for i in range(self.game_grid.cols):
             board_row = MDBoxLayout(orientation = "horizontal", 
                                     line_color= (0,0,0,1))
@@ -71,8 +75,10 @@ class GameScreen(MDScreen):
                 board_button = Button(background_normal=self.get_color(i,j), 
                                       border = (0,0,0,0),
                                       background_color=(1,1,1,1))
-                board_button.bind(on_release = self.move_object)
+                                    #   ,text = str(i) + '' + str(j))
+                # board_button.bind(on_release = self.move_object)
                 board_button.bind(on_press = self.move_object)
+                board_button.my_id = 'Row ' + str(i+1) + ', Column ' + str(j+1)
                 board_col.add_widget(board_button)
                 board_row.add_widget(board_col)
             self.game_grid.add_widget(board_row)
@@ -82,7 +88,7 @@ class GameScreen(MDScreen):
             self.clicked = True
         elif instance.state == 'normal':
             self.clicked = False
-        print('Button', instance, 'has been', instance.state, 'clicked =', self.clicked)
+        print('Button', str(instance.my_id), 'has been clicked =', self.clicked)            
     
     def get_color(self, i, j):
         color_list = ['aqua', 'black', 'blue', 'dark_green', 'light_green', 'orange', 'pink', 'red', 'yellow']

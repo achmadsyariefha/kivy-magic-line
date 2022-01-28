@@ -106,9 +106,9 @@
 
 <GameScreen>
     name:"game"
-    game_grid: game_grid
-    game_time: game_time
-    game_score: game_score
+    # game_grid: game_grid
+    # game_time: game_time
+    # game_score: game_score
     FitImage:
         source: 'resources/img/bg.png'
     
@@ -143,7 +143,7 @@
                     MDLabel:
                         id: game_time
                         halign: 'center'
-                        text: "00:00:00"
+                        text: root.time_label
 
                 MDBoxLayout:
                     orientation: 'vertical'
@@ -159,11 +159,15 @@
                         text: "0"
 
         FloatLayout:
+            id: board_one
             size: 25, 25
             size_hint: 1, .5
             pos_hint: {'center_x':0.5, 'center_y':0.5}
-            # Image:
-            #     source: 'resources/img/Board2.png'
+
+            Image:
+                source: 'resources/img/Board2.png'
+                allow_stretch: True
+                keep_ratio: False 
             # canvas.before:
             #     BorderImage:
             #         source: 'resources/img/Board2.png'
@@ -172,15 +176,16 @@
             #         auto_scale: 'y_only'
                     # effects: ew.FXAAEffect()
             
-            MDBoxLayout:
-                id: game_grid
-                orientation: "vertical"
-                # cols: 10
-                # rows: 10
-                line_color: 0, 0, 0, 1
-                pos_hint: {'center_x':0.5}
+            # MDBoxLayout:
+            #     id: game_grid
+            #     orientation: "vertical"
+            #     # cols: 10
+            #     # rows: 10
+            #     line_color: 0, 0, 0, 1
+            #     pos_hint: {'center_x':0.5}
 
-            
+            # TileGrid:
+            #     id: tile_grid
 
 <SettingsScreen>
     name:"settings"

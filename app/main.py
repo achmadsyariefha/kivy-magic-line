@@ -1,31 +1,26 @@
-from logging import root
+from math import sqrt
 from random import randint
+from core import Ball, Player
+
 import kivy
-from kivy import clock
-from kivy import app
-from kivy.logger import BLACK
-from kivymd.uix import button
-from kivymd.uix.behaviors import backgroundcolor_behavior
+
 kivy.require('1.0.0')
 
 from kivy.config import Config
-from kivy.clock import Clock
-from kivy.core.image import Image
+from kivy.clock import Clock, ClockEvent
 from kivy.core.window import Window
 from kivy.core.audio import SoundLoader, Sound
-from kivy.properties import ObjectProperty, StringProperty, NumericProperty, BooleanProperty
-from kivy.lang import Builder
+from kivy.properties import ObjectProperty, ListProperty, StringProperty, NumericProperty, BooleanProperty
+
 from kivy.uix.screenmanager import ScreenManager
-from kivy.uix.anchorlayout import AnchorLayout
-from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.gridlayout import GridLayout
 from kivy.uix.button import Button
-from kivy.uix.widget import Widget
+
 from kivymd.app import MDApp
 from kivymd.uix.screen import MDScreen
 from kivymd.uix.button import MDFillRoundFlatButton, MDFlatButton, MDRectangleFlatButton
 from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
 from kivymd.uix.dialog import MDDialog
-from kivymd.uix.boxlayout import MDBoxLayout
 
 from algorithm import astar
 
@@ -47,60 +42,201 @@ class StartScreen(MDScreen):
 
 # GameScreen
 class GameScreen(MDScreen):
+    players = {}
+    dynamic_value = 10
     grid = []
-    isGameOver = False
+    is_game_over = False
+    destroyed = False
+    prev_ball = ''
+    prev_color = ''
     difficulty = ''
+    layout = ''
+    board_layout = ''
+    turn = 'pl'
+    count = 0
     clicked = False
-    game_grid = ObjectProperty(None)
+
+    time_label = StringProperty()
     
     # game_time = NumericProperty()
     # game_score = NumericProperty()
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
-        color = 0
-        Clock.schedule_once(self._finish_init)
+        self.event = Clock.schedule_once(self._finish_init)
 
     def _finish_init(self, dt):
-        self.game_grid.cols = 10
-        self.game_grid.rows = 10
-        self.presstime = 1.0
-        for i in range(self.game_grid.cols):
-            board_row = MDBoxLayout(orientation = "horizontal", 
-                                    line_color= (0,0,0,1))
-            for j in range(self.game_grid.rows):
-                board_col = MDBoxLayout(orientation = "vertical",
-                                        md_bg_color=(1,1,1,1),
-                                        line_color= (0,0,0,1))
-                board_button = Button(background_normal=self.get_color(i,j), 
-                                      border = (0,0,0,0),
-                                      background_color=(1,1,1,1))
-                                    #   ,text = str(i) + '' + str(j))
-                # board_button.bind(on_release = self.move_object)
-                board_button.bind(on_press = self.move_object)
-                board_button.my_id = 'Row ' + str(i+1) + ', Column ' + str(j+1)
-                board_col.add_widget(board_button)
-                board_row.add_widget(board_col)
-            self.game_grid.add_widget(board_row)
+        self.layout = self.ids.board_one
+        self.dynamic_value = 10
+        grid_value = self.dynamic_value * self.dynamic_value
+        diviser = int(sqrt(grid_value))
+        self.board_layout = GridLayout(cols = self.dynamic_value, rows = self.dynamic_value)
+        nbBalls = int((self.dynamic_value / 2) * ((self.dynamic_value / 2 )- 1))
+        self.players['pl'] = Player(name = 'Player', player = 'pl', score = nbBalls)
+        color = 0
+        counter = 0
+        jumpline = 0
+        for i in range(0, grid_value):
+            if jumpline != int(i/ diviser):
+                jumpline += 1
+                counter += 1
+            try:
+                value = self.grid[int(i / (diviser * (i % diviser)))]
+            except Exception as e:
+                self.grid.append([])
+            button_id = str(int(i / diviser)) + '-' + str(int(i % diviser))
+            ball = ''
+            # if add_ball <= 3:
+            #     color = (0.75, 0.58, 0.36, 2.5)
+            #     # if i < int(nbBalls * 2):
+            #     #     ball = 'pl'
+            #     ball = 'pl'
+            # else:
+            #     color = (0.84, 0.70, 0.49, 2.5)
+            if counter % randint(1, 10) != 0:
+                if i < int(nbBalls * 2):
+                    color = randint(1, 9)
+                    ball = 'pl'
+            else:
+                color = 0
+            y = int(i / diviser)
+            x = int(i % diviser)
+            self.grid[y].append([])
+            self.grid[y][x].append('')
+            button = Button(background_normal = self.ball_color(color), on_press=self.move_object, size=self.size, border=(0,0,0,0))
+            button.id = button_id
+            self.grid[y][x] = Ball(ball, color, button, y, x)
+            self.board_layout.add_widget(self.grid[y][x].button)
+            counter += 1
+        self.layout.add_widget(self.board_layout)
 
-    def move_object(self, instance):
-        if instance.state == 'down':
-            self.clicked = True
-        elif instance.state == 'normal':
-            self.clicked = False
-        print('Button', str(instance.my_id), 'has been clicked =', self.clicked)            
-    
-    def get_color(self, i, j):
-        color_list = ['aqua', 'black', 'blue', 'dark_green', 'light_green', 'orange', 'pink', 'red', 'yellow']
-        random_color = randint(0, len(color_list)-1)
-        random_col = randint(0, 9)
-        random_row = randint(0, 9)
-        if i == random_row or j == random_col:
-            return 'resources/img/'+color_list[random_color]+'.png'
+    # changing ball color
+    def ball_color(self, number):
+        colors = ('tile','aqua', 'black', 'blue', 
+                'dark_green', 'light_green', 'orange', 'pink', 
+                'red', 'yellow')
+        color_list = {i: color for i, color in enumerate(colors)}
+
+        color_ball = "resources/img/"+color_list[number]+".png"
+        return color_ball
+
+    # move the object
+    def move_object(self, button):
+        matching = button.id.split('-')
+        row = int(matching[0])
+        column = int(matching[1])
+        ball = self.grid[row][column]
+        if self.clicked == True:
+            if row == self.prev_ball.row and column == self.prev_ball.column:
+                self.reinit_prev()
+                self.clicked = False
+                print('movement aborted')
+            elif row != self.prev_ball.row and column == self.prev_ball.column:
+                if ball.color == '' and ball.number == 0:
+                    self.place(row, column)
+                    print(ball.color+' to '+str(row)+'-'+str(column))
+            elif row == self.prev_ball.row and column != self.prev_ball.column:
+                if ball.color == '' and ball.number == 0:
+                    self.place(row, column)
+                    print(ball.color+' to '+str(row)+'-'+str(column))
+            else:
+                print(ball.color+' invalid movement')
+                return False
         else:
-            return ''
+            if ball.color == self.turn:
+                self.prev_ball = ball
+                self.prev_color = ball.button.background_color
+                ball.button.background_color = (0, 0.7, 0, 2)
+                self.clicked = True
+        return False 
+
+    def place(self, row, column):
+        if self.prev_ball.color == self.turn:
+            self.check(row, column)
+            return False
+        return False
+
+    # checking grid
+    def check(self, row, column):
+        if self.check_moveable(row, column) == True:
+            if self.destroyed == False:
+                self.change_turn()
+        return False
+
+    # moving check
+    def check_moveable(self, row, column):
+        if self.grid[row][column].color == '' and self.grid[row][column].number == 0:
+            # if abs(row - self.prev_ball.row) == 2 and abs(column - self.prev_ball.column) == 2:
+            #     if self.grid[int(row - ((row - self.prev_ball.row) / 2))][int(column - ((column - self.prev_ball.column) / 2))].color == self.players[self.turn].ennemy:
+            #         self.grid[int(row - ((row - self.prev_ball.row) / 2))][int(column - ((column - self.prev_ball.column) / 2))].color = ''
+            #         self.grid[int(row - ((row - self.prev_ball.row) / 2))][int(column - ((column - self.prev_ball.column) / 2))].button.text = ''
+            #         self.update_score(self.players[self.turn].ennemy)
+            #         self.pawnEated = True
+            #         return self.swapPawnValues(row, column)
+            # else:
+            #     if row - self.prev_ball.row == self.players[self.turn].orientation and abs(column - self.prev_ball.column) == 1:
+            #         return self.swapPawnValues(row, column)
+            # for i in range (self.prev_ball.row+1, row):
+            #     if row - self.prev_ball.row == i and abs(column - self.prev_ball.column) == 0:
+            #         return self.swap_ball_values(row, column)  
+
+            if abs(row - self.prev_ball.row) == 1 and column - self.prev_ball.column == 0:
+                    return self.swap_ball_values(row, column)
+            elif row - self.prev_ball.row == 0 and abs(column - self.prev_ball.column) == 1:
+                    return self.swap_ball_values(row, column)
+        return False
+
+    def line_check(self, row, column):
+        if (row + 1) < self.dynamic_value and (column + 1) < self.dynamic_value and  self.grid[row + 1][column + 1].color == self.players[self.turn]:
+            if (row + 2) < self.dynamic_value and (column + 2) < self.dynamic_value and self.grid[row + 2][column + 2].color == '':
+                return True
+        if (row - 1) >= 0 and (column + 1) < self.dynamic_value and self.grid[row - 1][column + 1].color == self.players[self.turn]:
+            if (row - 2) >= 0 and (column + 2) < self.dynamic_value and self.grid[row - 2][column + 2].color == '':
+                return True
+        if (row + 1) < self.dynamic_value and (column - 1) >= 0 and self.grid[row + 1][column - 1].color == self.players[self.turn]:
+            if (row + 2) < self.dynamic_value and (column - 2) >= 0 and self.grid[row + 2][column - 2].color == '':
+                return True
+        if (row - 1) >= 0 and (column - 1) >= 0 and self.grid[row - 1][column - 1].color == self.players[self.turn]:
+            if (row - 2) >= 0 and (column - 2) >= 0 and self.grid[row - 2][column - 2].color == '':
+                return True
+        return False       
+    
+    def reinit_prev(self):
+        self.grid[self.prev_ball.row][self.prev_ball.column].button.background_color = self.prev_color
+        self.grid[self.prev_ball.row][self.prev_ball.column].button.background_normal = self.ball_color(self.prev_ball.number)
+        self.prev_ball = 0
+    
+    def swap_ball_values(self, row, column):
+        self.grid[row][column].button.text, self.prev_ball.button.text = self.prev_ball.button.text, self.grid[row][column].button.text
+        self.grid[row][column].color, self.prev_ball.color =  self.prev_ball.color, self.grid[row][column].color
+        self.grid[row][column].number, self.prev_ball.number = self.prev_ball.number, self.grid[row][column].number
+        if self.destroyed and self.line_check(row, column):
+            self.grid[row][column].button.background_color = (0, 0.7, 0, 2)
+            self.grid[self.prev_ball.row][self.prev_ball.column].button.background_color = self.prev_color
+            self.prev_ball = self.grid[row][column]
+            return True
+        self.grid[row][column].button.background_normal = self.ball_color(self.grid[row][column].number)
+        self.destroyed = False
+        self.reinit_prev()
+        return True
+
+    def reinit_ball(self, ball):
+        ball.color = ''
+        ball.button.text = ''
+
+    def change_turn(self):
+        self.turn = self.players[self.turn].player
+        self.count += 1
+        print('turn '+str(self.count))
+        self.clicked = False
+        return False
+
+    def restart(self):
+        self.layout.clear_widgets()
+        self.layout.add_widget(self.board_layout)
 
     def set_screen(self):
+        # self.restart()
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
 
@@ -209,43 +345,6 @@ class MainApp(MDApp):
     def close_dialog(self, inst):
         self.dialog.dismiss()
 
-# Player
-class Player(object):
-    name = ''
-    score = 0
-    time = 0
-    turn = 0
-
-    def __init__(self, name, score, time, turn):
-        self.name = name
-        self.score = score
-        self.time = time
-        self.turn = turn
-        return
-
-# GameBall
-class GameBall(object):
-    color = ''
-    button = 0
-    rows = 0
-    column = 0
-
-    def __init__(self, color, button, rows, column):
-        self.color = color
-        self.button = button
-        self.rows = rows
-        self.column = column
-        return
-
-class GameBoard(Widget):
-    def __init__(self, **kwargs):
-        super(GameBoard, self).__init__(**kwargs)
-
-class GameBoardColumn(Widget):
-    def __init__(self, **kwargs):
-        super(GameBoardColumn, self).__init__(**kwargs)
-        Window.bind(mouse_pos=self.on_mouse_pos)
-        self.magicLineGame = None
 
 if __name__ =="__main__":
     MainApp().run()

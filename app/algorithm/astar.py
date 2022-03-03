@@ -62,7 +62,7 @@ def astar(maze, start, end, allow_diagonal_movement = False):
                 continue
             #create new node
             new_node = Node(current_node, node_position)
-            #append new noed
+            #append new node
             children.append(new_node)
 
         #loop through children
@@ -84,6 +84,7 @@ def astar(maze, start, end, allow_diagonal_movement = False):
 
             #add the child to the open list
             open_list.append(child)
+
 
 def example():
 

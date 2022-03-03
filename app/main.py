@@ -1,6 +1,6 @@
 from math import sqrt
 from random import randint
-from core import Ball, Player
+from core import Ball, Player, Field
 
 import kivy
 
@@ -45,6 +45,9 @@ class GameScreen(MDScreen):
     players = {}
     dynamic_value = 10
     grid = []
+    lines_ball = []
+    free_cells = []
+    set_balls = []
     is_game_over = False
     destroyed = False
     prev_ball = ''
@@ -70,12 +73,22 @@ class GameScreen(MDScreen):
         self.dynamic_value = 10
         grid_value = self.dynamic_value * self.dynamic_value
         diviser = int(sqrt(grid_value))
+        # self.game_field = Field(amount_cells=self.dynamic_value, player = 'pl')
         self.board_layout = GridLayout(cols = self.dynamic_value, rows = self.dynamic_value)
         nbBalls = int((self.dynamic_value / 2) * ((self.dynamic_value / 2 )- 1))
         self.players['pl'] = Player(name = 'Player', player = 'pl', score = nbBalls)
-        color = 0
         counter = 0
+        color = 0
         jumpline = 0
+        # button = Button()
+        # for x in range(self.game_field.height):
+        #     for y in range(self.game_field.width):
+        #         button_id = str(int(x)) + '-' + str(int(y))
+        #         button = Button(background_normal = '', on_press = self.move_object, size = self.size)
+        #         balls = self.game_field.field[x][y]
+        #         if balls is not None:
+        #             button = Button(background_normal = self.ball_color(color), on_press = self.move_object, size = self.size)
+        #
         for i in range(0, grid_value):
             if jumpline != int(i/ diviser):
                 jumpline += 1
@@ -95,20 +108,71 @@ class GameScreen(MDScreen):
             #     color = (0.84, 0.70, 0.49, 2.5)
             if counter % randint(1, 10) != 0:
                 if i < int(nbBalls * 2):
-                    color = randint(1, 9)
                     ball = 'pl'
+                    color = randint(1, 9)
             else:
                 color = 0
+
             y = int(i / diviser)
             x = int(i % diviser)
             self.grid[y].append([])
             self.grid[y][x].append('')
-            button = Button(background_normal = self.ball_color(color), on_press=self.move_object, size=self.size, border=(0,0,0,0))
+            # button = Button(background_normal = self.ball_color(color), on_press=self.move_object, size=self.size, border=(0,0,0,0))
+            button = Button(on_press=self.move_object)
+            self.draw_tiles(button, color) 
             button.id = button_id
             self.grid[y][x] = Ball(ball, color, button, y, x)
             self.board_layout.add_widget(self.grid[y][x].button)
             counter += 1
         self.layout.add_widget(self.board_layout)
+
+    def get_ball(self, x, y):
+        return self.grid[y][x]
+
+    def set_ball(self, x, y, ball):
+        self.grid[y][x] = ball
+        self.free_cells.remove((x, y))
+
+    def delete_ball(self, x, y):
+        self.grid[y][x] = None
+        self.free_cells.append((x, y))
+
+
+    def new_game(self):
+        pass
+
+    def moving(self, start_x, start_y, end_x, end_y):
+        if self.get_ball(end_x, end_y) is not None or self.get_ball(start_x, start_y) is None:
+            return False
+        queue = []
+        visited = []
+
+        queue.append((start_x, start_y))
+        while len(queue) > 0:
+            coord = queue.pop(0)
+            if coord[0] < 0 or coord[0] >= self.dynamic_value or coord[1] < 0 or coord[1] >= self.dynamic_value:
+                continue
+            if coord[0] == end_x and coord[1] == end_y:
+                return True
+            visited.append((coord[0], coord[1]))
+            for dy in range(-1, 2):
+                for dx in range(-1, 2):
+                    if dx != 0 and dy != 0:
+                        continue
+                    else:
+                        queue.append((coord[0]+dx, coord[1]+dy))
+        return False
+
+    # def clear_lines(self, x, y):
+    #     clear_the_ball = []
+    #     minus_dx = x
+    #     plus_dx = x + 1
+    #     minus_dy = y
+    #     plus_dy = y + 1
+
+
+    # def on_touch_down(self, touch):
+    #     return super().on_touch_down(touch)
 
     # changing ball color
     def ball_color(self, number):
@@ -119,6 +183,11 @@ class GameScreen(MDScreen):
 
         color_ball = "resources/img/"+color_list[number]+".png"
         return color_ball
+
+    def draw_tiles(self, button, color):
+        button.background_normal = self.ball_color(color)
+        button.size = self.size
+        button.border = (0,0,0,0)
 
     # move the object
     def move_object(self, button):
@@ -185,7 +254,7 @@ class GameScreen(MDScreen):
             elif row - self.prev_ball.row == 0 and abs(column - self.prev_ball.column) == 1:
                     return self.swap_ball_values(row, column)
         return False
-
+                
     def line_check(self, row, column):
         if (row + 1) < self.dynamic_value and (column + 1) < self.dynamic_value and  self.grid[row + 1][column + 1].color == self.players[self.turn]:
             if (row + 2) < self.dynamic_value and (column + 2) < self.dynamic_value and self.grid[row + 2][column + 2].color == '':
@@ -199,12 +268,20 @@ class GameScreen(MDScreen):
         if (row - 1) >= 0 and (column - 1) >= 0 and self.grid[row - 1][column - 1].color == self.players[self.turn]:
             if (row - 2) >= 0 and (column - 2) >= 0 and self.grid[row - 2][column - 2].color == '':
                 return True
+        return False
+
+    def line_check_test(self, row, column):
+        if (row + 1) < self.dynamic_value:
+            self.lines_ball.append(self.grid[row][column].button)
         return False       
     
     def reinit_prev(self):
         self.grid[self.prev_ball.row][self.prev_ball.column].button.background_color = self.prev_color
         self.grid[self.prev_ball.row][self.prev_ball.column].button.background_normal = self.ball_color(self.prev_ball.number)
         self.prev_ball = 0
+
+    def reinit_ball(self):
+        pass
     
     def swap_ball_values(self, row, column):
         self.grid[row][column].button.text, self.prev_ball.button.text = self.prev_ball.button.text, self.grid[row][column].button.text

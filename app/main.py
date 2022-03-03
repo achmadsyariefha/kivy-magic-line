@@ -60,9 +60,6 @@ class GameScreen(MDScreen):
     clicked = False
 
     time_label = StringProperty()
-    
-    # game_time = NumericProperty()
-    # game_score = NumericProperty()
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
@@ -80,32 +77,20 @@ class GameScreen(MDScreen):
         counter = 0
         color = 0
         jumpline = 0
-        # button = Button()
-        # for x in range(self.game_field.height):
-        #     for y in range(self.game_field.width):
-        #         button_id = str(int(x)) + '-' + str(int(y))
-        #         button = Button(background_normal = '', on_press = self.move_object, size = self.size)
-        #         balls = self.game_field.field[x][y]
-        #         if balls is not None:
-        #             button = Button(background_normal = self.ball_color(color), on_press = self.move_object, size = self.size)
-        #
+        
         for i in range(0, grid_value):
             if jumpline != int(i/ diviser):
                 jumpline += 1
                 counter += 1
+                
             try:
                 value = self.grid[int(i / (diviser * (i % diviser)))]
             except Exception as e:
                 self.grid.append([])
+                
             button_id = str(int(i / diviser)) + '-' + str(int(i % diviser))
             ball = ''
-            # if add_ball <= 3:
-            #     color = (0.75, 0.58, 0.36, 2.5)
-            #     # if i < int(nbBalls * 2):
-            #     #     ball = 'pl'
-            #     ball = 'pl'
-            # else:
-            #     color = (0.84, 0.70, 0.49, 2.5)
+            
             if counter % randint(1, 10) != 0:
                 if i < int(nbBalls * 2):
                     ball = 'pl'
@@ -115,6 +100,7 @@ class GameScreen(MDScreen):
 
             y = int(i / diviser)
             x = int(i % diviser)
+            
             self.grid[y].append([])
             self.grid[y][x].append('')
             # button = Button(background_normal = self.ball_color(color), on_press=self.move_object, size=self.size, border=(0,0,0,0))
@@ -162,17 +148,6 @@ class GameScreen(MDScreen):
                     else:
                         queue.append((coord[0]+dx, coord[1]+dy))
         return False
-
-    # def clear_lines(self, x, y):
-    #     clear_the_ball = []
-    #     minus_dx = x
-    #     plus_dx = x + 1
-    #     minus_dy = y
-    #     plus_dy = y + 1
-
-
-    # def on_touch_down(self, touch):
-    #     return super().on_touch_down(touch)
 
     # changing ball color
     def ball_color(self, number):
@@ -235,19 +210,6 @@ class GameScreen(MDScreen):
     # moving check
     def check_moveable(self, row, column):
         if self.grid[row][column].color == '' and self.grid[row][column].number == 0:
-            # if abs(row - self.prev_ball.row) == 2 and abs(column - self.prev_ball.column) == 2:
-            #     if self.grid[int(row - ((row - self.prev_ball.row) / 2))][int(column - ((column - self.prev_ball.column) / 2))].color == self.players[self.turn].ennemy:
-            #         self.grid[int(row - ((row - self.prev_ball.row) / 2))][int(column - ((column - self.prev_ball.column) / 2))].color = ''
-            #         self.grid[int(row - ((row - self.prev_ball.row) / 2))][int(column - ((column - self.prev_ball.column) / 2))].button.text = ''
-            #         self.update_score(self.players[self.turn].ennemy)
-            #         self.pawnEated = True
-            #         return self.swapPawnValues(row, column)
-            # else:
-            #     if row - self.prev_ball.row == self.players[self.turn].orientation and abs(column - self.prev_ball.column) == 1:
-            #         return self.swapPawnValues(row, column)
-            # for i in range (self.prev_ball.row+1, row):
-            #     if row - self.prev_ball.row == i and abs(column - self.prev_ball.column) == 0:
-            #         return self.swap_ball_values(row, column)  
 
             if abs(row - self.prev_ball.row) == 1 and column - self.prev_ball.column == 0:
                     return self.swap_ball_values(row, column)

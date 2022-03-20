@@ -102,7 +102,7 @@
                         app.show_exit_dialog()
                     size: self.width, 50
                     size_hint: .75, None
-                    pos_hint: {'center_x':.5, 'center_y':.5}            
+                    pos_hint: {'center_x':.5, 'center_y':.5}
 
 <GameScreen>
     name:"game"
@@ -111,7 +111,7 @@
     # game_score: game_score
     FitImage:
         source: 'resources/img/bg.png'
-    
+
     MDBoxLayout:
         orientation: 'vertical'
 
@@ -123,7 +123,7 @@
             MDToolbar:
                 title: "Magic Line"
                 left_action_items: [["arrow-left", lambda x: root.set_screen()]]
-        
+
         AnchorLayout:
             size_hint: 1, 0.1
             anchor_x: 'center'
@@ -167,7 +167,7 @@
             Image:
                 source: 'resources/img/Board2.png'
                 allow_stretch: True
-                keep_ratio: False 
+                keep_ratio: False
             # canvas.before:
             #     BorderImage:
             #         source: 'resources/img/Board2.png'
@@ -175,7 +175,7 @@
             #         size: self.size
             #         auto_scale: 'y_only'
                     # effects: ew.FXAAEffect()
-            
+
             # MDBoxLayout:
             #     id: game_grid
             #     orientation: "vertical"
@@ -193,7 +193,7 @@
     bgm_on: bgm_on
     FitImage:
         source: 'resources/img/bg.png'
-    
+
     MDBoxLayout:
         orientation: "vertical"
 
@@ -231,7 +231,7 @@
 
                         MDLabel:
                             text:"Diffculty"
-                    
+
                     MDBoxLayout:
                         orientation: 'vertical'
 
@@ -267,7 +267,7 @@
                                 orientation: 'vertical'
                                 padding: 0, 25, 0, 0
                                 spacing: 5
-                        
+
                                 Check:
                                     id: easy
                                     size_hint: 1, 0.2
@@ -289,7 +289,7 @@
                                     size: "24dp", "28dp"
                                     on_active: root.on_checkbox_active(*args)
                                     # pos_hint: {'center_y':.5, 'center_x':.5}
-                            
+
                             MDBoxLayout:
                                 orientation: 'vertical'
                                 padding: 0, 50, 0, 10
@@ -308,7 +308,7 @@
     name:"help"
     FitImage:
         source: 'resources/img/bg.png'
-    
+
     MDBoxLayout:
         orientation: "vertical"
 

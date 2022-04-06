@@ -3,9 +3,9 @@ from random import randint
 
 class CheckerBall:
 
-    def __init__(self, color = '', number = 0, button = 0, row = 0, column = 0):
+    def __init__(self, ball = '', color = 0, button = 0, row = 0, column = 0):
+        self.ball = ball
         self.color = color
-        self.number = number
         self.button = button
         self.row = row
         self.column = column

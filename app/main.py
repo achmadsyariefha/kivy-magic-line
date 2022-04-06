@@ -1,6 +1,5 @@
 from math import sqrt
-import queue
-from random import randint
+from random import randint, sample
 
 from core import Player, CheckerBall
 
@@ -71,20 +70,14 @@ class GameScreen(MDScreen):
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
-        # self.coordinates = None
-        # # self._set_number_of_ball_per_line()
-        # self.reset_board()
-        # self.set_number_next_ball()
-        # self.set_number_color()
-        # self.add_next_balls()
-        # self.set_balls = []
+        self.coordinates = None
+        self.set_balls = []
         self.event = Clock.schedule_once(self._finish_init)
 
     def _finish_init(self, dt):
         self.layout = self.ids.board_one
         self.dynamic_value = 10
         self.free_cells = []
-        # grid_value = self.game_field.height * self.game_field.width
         grid_value = self.dynamic_value * self.dynamic_value
         diviser = int(sqrt(grid_value))
         self.board_layout = GridLayout(cols = self.dynamic_value, rows = self.dynamic_value)
@@ -93,6 +86,8 @@ class GameScreen(MDScreen):
         counter = 0
         color = 0
         jumpline = 0
+        random_balls = sample(range(0, grid_value), 3)
+        ordering = sorted(random_balls)
 
         for i in range(0, grid_value):
             if jumpline != int(i/ diviser):
@@ -105,45 +100,45 @@ class GameScreen(MDScreen):
                 self.grid.append([])
 
             button_id = str(int(i / diviser)) + '-' + str(int(i % diviser))
-            ball = ''
-
-            if counter % randint(1, 10) != 0:
-                if i < int(nbBalls * 2):
-                    ball = 'pl'
-                    color = randint(1, 9)
-            else:
-                color = 0
 
             y = int(i / diviser)
             x = int(i % diviser)
 
             self.grid[y].append([])
             self.grid[y][x].append('')
-            self.free_cells.append((y, x))
-            # button = Button(background_normal = self.ball_color(color), on_press=self.move_object, size=self.size, border=(0,0,0,0))
+            self.free_cells.append((x, y))
+
+            # if i in ordering:
+            #     ball = 'pl'
+            #     color = randint(1, 9)
+            # else:
+            #     color = 0
+            if counter % 2 != 0:
+                if i < int(nbBalls * 2):
+                    ball = 'pl'
+                    color = randint(1, 9)
+            else:
+                ball = ''
+                color = 0
+
             button = Button(on_press=self.move_object)
             button.id = button_id
             self.draw_tiles(button, color)
             self.grid[y][x] = CheckerBall(ball, color, button, y, x)
+            if self.grid[y][x].ball == 'pl':
+                self.free_cells.remove((x, y))
+                self.set_balls.append((x, y))
             self.board_layout.add_widget(self.grid[y][x].button)
             counter += 1
         self.layout.add_widget(self.board_layout)
 
-    def set_number_next_ball(self):
-        self.number_of_next_ball = self.dynamic_value // 4 + 1
-
-    def add_next_balls(self):
+    def make_next_balls(self, x, y):
         self.next_balls.clear()
-        for index in range(self.number_of_next_ball):
-            ball = CheckerBall()
-            ball.set_random_color(self.number_of_color)
+        for index in range(3):
+            ball = self.grid[y][x]
+            ball.ball = 'pl'
+            ball.color = randint(1, 9)
             self.next_balls.append(ball)
-
-    def set_line_ball(self):
-        self.number_ball_per_line = self.dynamic_value // 3 + 2
-
-    def set_number_color(self):
-        self.number_of_color = self.dynamic_value // 2 + 3
 
     def clear_board(self):
         self.free_cells.clear()
@@ -160,103 +155,94 @@ class GameScreen(MDScreen):
 
     def reset_board(self):
         self.clear_board()
-        self.add_next_balls()
         self.set_next_balls()
 
-    def get_ball_color(self, x, y):
-        if self.grid[y][x] is not None or self.grid[y][x].color != '':
-            return self.grid[y][x].color
-
-    def find_lines(self, x, y):
-        if self.grid[y][x] is None:
+    """try to solve this"""
+    def find_lines(self, row, column):
+        if self.grid[row][column].color == 0:
             return
 
-        current_color = self.get_ball_color(x, y)
+        current_color = self.grid[row][column].color
         delete_ball = []
 
-        minus_dx = x
-        plus_dx = x + 1
-        while minus_dx >= 0 and self.get_ball_color(minus_dx, y) == current_color:
-            delete_ball.append((minus_dx, y))
+        minus_dx = column
+        plus_dx = column + 1
+        while minus_dx >= 0 and self.grid[row][minus_dx].color == current_color:
+            delete_ball.append((minus_dx, row))
             minus_dx -= 1
-        while plus_dx < self.dynamic_value and self.get_ball_color(plus_dx, y) == current_color:
-            delete_ball.append((plus_dx, y))
+        while plus_dx < self.dynamic_value and self.grid[row][plus_dx].color == current_color:
+            delete_ball.append((plus_dx, row))
             plus_dx += 1
-        if len(delete_ball) >= self.number_ball_per_line:
+        if len(delete_ball) >= 5:
             return delete_ball
         else:
             delete_ball.clear()
 
-        minus_dy = y
-        plus_dy = y + 1
-        while minus_dy >= 0 and self.get_ball_color(x, minus_dy) == current_color:
-            delete_ball.append((x, minus_dy))
+        minus_dy = row
+        plus_dy = row + 1
+        while minus_dy >= 0 and self.grid[minus_dy][column].color == current_color:
+            delete_ball.append((column, minus_dy))
             minus_dy -= 1
-        while plus_dy < self.dynamic_value and self.get_ball_color(x, plus_dy) == current_color:
-            delete_ball.append((x, plus_dy))
+        while plus_dy < self.dynamic_value and self.grid[plus_dy][column].color == current_color:
+            delete_ball.append((column, plus_dy))
             plus_dy += 1
-        if len(delete_ball) >= self.number_ball_per_line:
+        if len(delete_ball) >= 5:
             return delete_ball
         else:
             delete_ball.clear()
 
-        minus_dx = x
-        minus_dy = y
-        plus_dx = x + 1
-        plus_dy = y + 1
-        while minus_dx >= 0 and minus_dy >= 0 and self.get_ball_color(minus_dx, minus_dy) == current_color:
+        minus_dx = column
+        minus_dy = row
+        plus_dx = column + 1
+        plus_dy = row + 1
+        while minus_dx >= 0 and minus_dy >= 0 and self.grid[minus_dy][minus_dx].color == current_color:
             delete_ball.append((minus_dx, minus_dy))
             minus_dx -= 1
             minus_dy -= 1
-        while plus_dx < self.dynamic_value and plus_dy < self.dynamic_value and self.get_ball_color(plus_dx, plus_dy) == current_color:
+        while plus_dx < self.dynamic_value and plus_dy < self.dynamic_value and self.grid[plus_dy][plus_dx].color == current_color:
             delete_ball.append((plus_dx, plus_dy))
             plus_dx += 1
             plus_dy += 1
-        if len(delete_ball) >= self.number_ball_per_line:
+        if len(delete_ball) >= 5:
             return delete_ball
         else:
             delete_ball.clear()
 
-        minus_dx = x
-        plus_dy = y
-        while minus_dx >= 0 and plus_dy < self.dynamic_value and self.get_ball_color(minus_dx, plus_dy) == current_color:
+        minus_dx = column
+        plus_dy = row
+        while minus_dx >= 0 and plus_dy < self.dynamic_value and self.grid[plus_dy][minus_dx].color == current_color:
             delete_ball.append((minus_dx, plus_dy))
             minus_dx -= 1
             plus_dy += 1
 
-        plus_dx = x + 1
-        minus_dy = y - 1
-        while plus_dx < self.dynamic_value and minus_dy >= 0 and self.get_ball_color(plus_dx, minus_dy) == current_color:
+        plus_dx = column + 1
+        minus_dy = row - 1
+        while plus_dx < self.dynamic_value and minus_dy >= 0 and self.grid[minus_dy][plus_dx].color == current_color:
             delete_ball.append((plus_dx, minus_dy))
             plus_dx += 1
             minus_dy -= 1
-        if len(delete_ball) >= self.number_ball_per_line:
+        if len(delete_ball) >= 5:
             return delete_ball
         else:
             return
 
     def delete_line(self, ball_coord_list):
         if ball_coord_list is not None:
+            print(ball_coord_list)
             for coord in ball_coord_list:
-                self.delete_ball(coord[0], coord[1])
+                self.grid[coord[1]][coord[0]].ball = ''
+                self.grid[coord[1]][coord[0]].color = 0
+                self.grid[coord[1]][coord[0]].button.background_normal = self.ball_color(self.grid[coord[1]][coord[0]].color)
+                self.free_cells.append((coord[0], coord[1]))
 
-    def set_next_balls(self):
-        if len(self.free_cells) <= self.number_of_next_ball:
-            raise FieldFullException()
-        self.set_balls.clear()
-        for ball in self.next_balls:
-            coord = self.free_cells[randint(0, len(self.free_cells)) - 1]
-            self.grid[coord[1]][coord[0]] = ball
-            self.set_balls.append((coord[0], coord[1]))
-        self.add_next_balls()
     # changing ball color
-    def ball_color(self, number):
+    def ball_color(self, color):
         colors = ('empty','aqua', 'black', 'blue',
                 'dark_green', 'light_green', 'orange', 'pink',
                 'red', 'yellow')
         color_list = {i: color for i, color in enumerate(colors)}
 
-        color_ball = "resources/img/"+color_list[number]+".png"
+        color_ball = "resources/img/"+color_list[color]+".png"
         return color_ball
 
     def draw_tiles(self, button, color):
@@ -265,7 +251,7 @@ class GameScreen(MDScreen):
         button.border = (0,0,0,0)
 
     def moving(self, start_x, start_y, end_x, end_y):
-        if (self.grid[end_y][end_x].color != '' and self.grid[end_y][end_x].number != 0) or (self.grid[start_y][start_x].color == '' and self.grid[start_y][start_x].number == 0):
+        if (self.grid[end_y][end_x].ball != '' and self.grid[end_y][end_x].color != 0) or (self.grid[start_y][start_x].ball == '' and self.grid[start_y][start_x].color == 0):
             return False
         queue = []
         visited = []
@@ -275,7 +261,7 @@ class GameScreen(MDScreen):
             if coord[0] < 0 or coord[0] >= self.dynamic_value \
                 or coord[1] < 0 or coord[1] >= self.dynamic_value:
                     continue
-            if (coord != (start_x, start_y) and (self.grid[coord[1]][coord[0]].color != '' and self.grid[coord[1]][coord[0]].number != 0)) \
+            if (coord != (start_x, start_y) and (self.grid[coord[1]][coord[0]].ball != '' and self.grid[coord[1]][coord[0]].color != 0)) \
                 or (coord[0], coord[1]) in visited:
                     continue
             if coord[0] == end_x and coord[1] == end_y:
@@ -288,6 +274,10 @@ class GameScreen(MDScreen):
                     else:
                         queue.append((coord[0] + dx, coord[1] + dy))
         return False
+
+    def delete_balls(self, x, y):
+        self.grid[y][x].ball = ''
+        self.grid[y][x].color = 0
 
     # move the object
     def move_object(self, button):
@@ -303,27 +293,34 @@ class GameScreen(MDScreen):
             if row == self.prev_ball.row and column == self.prev_ball.column:
                 self.reinit_prev()
                 self.clicked = False
-                print('movement aborted')
-            elif ball.color == '':
-                if self.prev_ball.color != '':
+            elif ball.ball == '':
+                if self.prev_ball.ball != '':
                     if self.moving(self.prev_ball.column, self.prev_ball.row, column, row):
                         self.place(self.prev_ball.row, self.prev_ball.column, row, column)
-                        print(ball.color+' to '+str(row)+'-'+str(column))
                         self.prev_ball = ''
-
+                        find_lines = self.find_lines(row, column)
+                        if find_lines is None:
+                            if len(self.free_cells) <= 3:
+                                pass
+                            for coordinates in self.set_balls:
+                                array = self.find_lines(coordinates[0], coordinates[1])
+                                if array is not None:
+                                    self.delete_line(array)
+                        else:
+                            self.delete_line(find_lines)
+            elif ball.ball != '':
+                self.prev_ball = ball
+                self.clicked = True
             else:
-                print(ball.color+' invalid movement')
                 return False
         else:
-            if ball.color == self.turn:
+            if ball.ball == self.turn:
                 self.prev_ball = ball
-                self.prev_color = ball.button.background_color
-                ball.button.background_color = (0, 0.7, 0, 2)
                 self.clicked = True
         return False
 
     def place(self, prev_row, prev_column, row, column):
-        if self.prev_ball.color == self.turn:
+        if self.prev_ball.ball == self.turn:
             self.check(prev_row, prev_column, row, column)
             return False
         return False
@@ -337,61 +334,36 @@ class GameScreen(MDScreen):
 
     # moving check
     def check_moveable(self, prev_row, prev_column, row, column):
-        if self.grid[row][column].color == '' and self.grid[row][column].number == 0:
-            self.free_cells.append((prev_row, prev_column))
+        if self.grid[row][column].ball == '' and self.grid[row][column].color == 0:
             return self.swap_ball_values(prev_row, prev_column, row, column)
-            # if abs(row - prev_row) == 1 and column - prev_column == 0:
-            #         return self.swap_ball_values(prev_row, prev_column, row, column)
-            # elif row - prev_row == 0 and abs(column - prev_column) == 1:
-            #         return self.swap_ball_values(prev_row, prev_column, row, column)
         return False
 
     # def update(self, *args):
     #     self.prev_ball
 
 
-    def line_check(self, row, column):
-        if (row + 1) < self.dynamic_value and (column + 1) < self.dynamic_value and  self.grid[row + 1][column + 1].color == self.players[self.turn]:
-            if (row + 2) < self.dynamic_value and (column + 2) < self.dynamic_value and self.grid[row + 2][column + 2].color == '':
-                return True
-        if (row - 1) >= 0 and (column + 1) < self.dynamic_value and self.grid[row - 1][column + 1].color == self.players[self.turn]:
-            if (row - 2) >= 0 and (column + 2) < self.dynamic_value and self.grid[row - 2][column + 2].color == '':
-                return True
-        if (row + 1) < self.dynamic_value and (column - 1) >= 0 and self.grid[row + 1][column - 1].color == self.players[self.turn]:
-            if (row + 2) < self.dynamic_value and (column - 2) >= 0 and self.grid[row + 2][column - 2].color == '':
-                return True
-        if (row - 1) >= 0 and (column - 1) >= 0 and self.grid[row - 1][column - 1].color == self.players[self.turn]:
-            if (row - 2) >= 0 and (column - 2) >= 0 and self.grid[row - 2][column - 2].color == '':
-                return True
-        return False
-
     def reinit_prev(self):
-        self.grid[self.prev_ball.row][self.prev_ball.column].button.background_color = self.prev_color
-        self.grid[self.prev_ball.row][self.prev_ball.column].button.background_normal = self.ball_color(self.prev_ball.number)
+        self.grid[self.prev_ball.row][self.prev_ball.column].button.background_normal = self.ball_color(self.prev_ball.color)
         self.prev_ball = 0
 
     def swap_ball_values(self, prev_row, prev_column, row, column):
-        self.grid[row][column].color, self.grid[prev_row][prev_column].color =  self.grid[prev_row][prev_column].color, self.grid[row][column].color
-        self.grid[row][column].number, self.grid[prev_row][prev_column].number = self.grid[prev_row][prev_column].number, self.grid[row][column].number
-        self.free_cells.remove((row, column))
-        if self.destroyed and self.line_check(row, column):
-            self.grid[row][column].button.background_color = (0, 0.7, 0, 2)
-            self.grid[self.prev_ball.row][self.prev_ball.column].button.background_color = self.prev_color
-            self.prev_ball = self.grid[row][column]
-            return True
-        self.grid[row][column].button.background_normal = self.ball_color(self.grid[row][column].number)
+        self.grid[row][column].ball, self.grid[prev_row][prev_column].ball =  self.grid[prev_row][prev_column].ball, self.grid[row][column].ball
+        self.grid[row][column].color, self.grid[prev_row][prev_column].color = self.grid[prev_row][prev_column].color, self.grid[row][column].color
+        self.free_cells.remove((column, row))
+        self.free_cells.append((prev_column, prev_row))
+        self.grid[row][column].button.background_normal = self.ball_color(self.grid[row][column].color)
         self.destroyed = False
         self.reinit_prev()
         return True
 
     def reinit_ball(self, ball):
-        ball.color = ''
-        ball.button.text = ''
+        ball.ball = ''
+        ball.color = 0
+        ball.button.background_normal = self.ball_color(ball.color)
 
     def change_turn(self):
         self.turn = self.players[self.turn].player
         self.count += 1
-        print('turn '+str(self.count))
         self.clicked = False
         return False
 
@@ -403,7 +375,6 @@ class GameScreen(MDScreen):
         self.layout.add_widget(self.board_layout)
 
     def set_screen(self):
-        # self.restart()
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
 

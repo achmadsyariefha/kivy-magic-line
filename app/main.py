@@ -108,15 +108,9 @@ class GameScreen(MDScreen):
             self.grid[y][x].append('')
             self.free_cells.append((x, y))
 
-            # if i in ordering:
-            #     ball = 'pl'
-            #     color = randint(1, 9)
-            # else:
-            #     color = 0
-            if counter % 2 != 0:
-                if i < int(nbBalls * 2):
-                    ball = 'pl'
-                    color = randint(1, 9)
+            if i in ordering:
+                ball = 'pl'
+                color = randint(1, 9)
             else:
                 ball = ''
                 color = 0
@@ -132,13 +126,16 @@ class GameScreen(MDScreen):
             counter += 1
         self.layout.add_widget(self.board_layout)
 
-    def make_next_balls(self, x, y):
-        self.next_balls.clear()
-        for index in range(3):
-            ball = self.grid[y][x]
-            ball.ball = 'pl'
-            ball.color = randint(1, 9)
-            self.next_balls.append(ball)
+    def add_balls(self):
+        for i in range(3):
+            if len(self.free_cells) > 3:
+                coord = self.free_cells[randint(0, len(self.free_cells)) - 1]
+                self.grid[coord[1]][coord[0]].ball = 'pl'
+                self.grid[coord[1]][coord[0]].color = randint(1, 9)
+                self.grid[coord[1]][coord[0]].button.background_normal = self.ball_color(self.grid[coord[1]][coord[0]].color)
+                self.free_cells.remove((coord[0], coord[1]))
+            else:
+                raise FieldFullException()
 
     def clear_board(self):
         self.free_cells.clear()
@@ -157,7 +154,7 @@ class GameScreen(MDScreen):
         self.clear_board()
         self.set_next_balls()
 
-    """try to solve this"""
+    #Finding line ball
     def find_lines(self, row, column):
         if self.grid[row][column].color == 0:
             return
@@ -226,9 +223,9 @@ class GameScreen(MDScreen):
         else:
             return
 
+    #deleting line ball
     def delete_line(self, ball_coord_list):
         if ball_coord_list is not None:
-            print(ball_coord_list)
             for coord in ball_coord_list:
                 self.grid[coord[1]][coord[0]].ball = ''
                 self.grid[coord[1]][coord[0]].color = 0
@@ -245,11 +242,13 @@ class GameScreen(MDScreen):
         color_ball = "resources/img/"+color_list[color]+".png"
         return color_ball
 
+    #Drawing tiles
     def draw_tiles(self, button, color):
         button.background_normal = self.ball_color(color)
         button.size = self.size
         button.border = (0,0,0,0)
 
+    #moving object using A* algorithm
     def moving(self, start_x, start_y, end_x, end_y):
         if (self.grid[end_y][end_x].ball != '' and self.grid[end_y][end_x].color != 0) or (self.grid[start_y][start_x].ball == '' and self.grid[start_y][start_x].color == 0):
             return False
@@ -275,10 +274,6 @@ class GameScreen(MDScreen):
                         queue.append((coord[0] + dx, coord[1] + dy))
         return False
 
-    def delete_balls(self, x, y):
-        self.grid[y][x].ball = ''
-        self.grid[y][x].color = 0
-
     # move the object
     def move_object(self, button):
         matching = button.id.split('-')
@@ -300,8 +295,7 @@ class GameScreen(MDScreen):
                         self.prev_ball = ''
                         find_lines = self.find_lines(row, column)
                         if find_lines is None:
-                            if len(self.free_cells) <= 3:
-                                pass
+                            self.add_balls()
                             for coordinates in self.set_balls:
                                 array = self.find_lines(coordinates[0], coordinates[1])
                                 if array is not None:
@@ -341,7 +335,6 @@ class GameScreen(MDScreen):
     # def update(self, *args):
     #     self.prev_ball
 
-
     def reinit_prev(self):
         self.grid[self.prev_ball.row][self.prev_ball.column].button.background_normal = self.ball_color(self.prev_ball.color)
         self.prev_ball = 0
@@ -355,11 +348,6 @@ class GameScreen(MDScreen):
         self.destroyed = False
         self.reinit_prev()
         return True
-
-    def reinit_ball(self, ball):
-        ball.ball = ''
-        ball.color = 0
-        ball.button.background_normal = self.ball_color(ball.color)
 
     def change_turn(self):
         self.turn = self.players[self.turn].player

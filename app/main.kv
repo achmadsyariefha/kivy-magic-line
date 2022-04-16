@@ -2,18 +2,10 @@
 #:import SlideTransition kivy.uix.screenmanager.SlideTransition
 #:import BackgroundColorBehavior kivymd.uix.behaviors.backgroundcolor_behavior
 
-
 <Check@MDCheckbox>:
     group: 'group'
     size_hint: None, None
     size: dp(48), dp(48)
-
-<GameBall@FloatLayout>:
-    size_hint: None, None
-    size: dp(48), dp(48)
-
-    Image:
-        source: 'resources/img/black.png'
 
 <RootScreen>
     transition: SlideTransition()
@@ -26,13 +18,6 @@
     name: "start"
     FitImage:
         source: 'resources/img/bg.png'
-    # background: 'resources/img/bg.png'
-    # md_bg_color: 0, 1, 0, 1
-    # canvas.before:
-    #     Rectangle:
-    #         pos:self.pos
-    #         size:self.size
-    #         source: 'resources/img/bg.png'
 
     MDBoxLayout:
         orientation:'vertical'
@@ -68,7 +53,6 @@
                         root.manager.transition.direction = 'left'
                         root.manager.transition.duration = 0.1
                         root.manager.current = "game"
-                        # app.start_game()
                     size: self.width, 50
                     size_hint: .75, None
                     pos_hint: {'center_x':.5, 'center_y':.5}
@@ -106,9 +90,8 @@
 
 <GameScreen>
     name:"game"
-    # game_grid: game_grid
-    # game_time: game_time
-    # game_score: game_score
+    game_difficulty: game_difficulty
+    game_score: game_score
     FitImage:
         source: 'resources/img/bg.png'
 
@@ -137,13 +120,13 @@
                     md_bg_color: 1, 1, 1, 1
 
                     MDLabel:
-                        text: "Time"
+                        text: "Difficulty"
                         halign: 'center'
 
                     MDLabel:
-                        id: game_time
+                        id: game_difficulty
                         halign: 'center'
-                        text: root.time_label
+                        text: 'Easy'
 
                 MDBoxLayout:
                     orientation: 'vertical'
@@ -155,8 +138,8 @@
 
                     MDLabel:
                         id: game_score
+                        text: '0'
                         halign: 'center'
-                        text: "0"
 
         FloatLayout:
             id: board_one
@@ -168,29 +151,10 @@
                 source: 'resources/img/Board2.png'
                 allow_stretch: True
                 keep_ratio: False
-            # canvas.before:
-            #     BorderImage:
-            #         source: 'resources/img/Board2.png'
-            #         pos: self.pos
-            #         size: self.size
-            #         auto_scale: 'y_only'
-                    # effects: ew.FXAAEffect()
-
-            # MDBoxLayout:
-            #     id: game_grid
-            #     orientation: "vertical"
-            #     # cols: 10
-            #     # rows: 10
-            #     line_color: 0, 0, 0, 1
-            #     pos_hint: {'center_x':0.5}
-
-            # TileGrid:
-            #     id: tile_grid
 
 <SettingsScreen>
     name:"settings"
-    bgm_off: bgm_off
-    bgm_on: bgm_on
+
     FitImage:
         source: 'resources/img/bg.png'
 
@@ -212,97 +176,52 @@
             anchor_y: 'center'
             padding: 25, 0, 25, 75
 
-            MDBoxLayout:
+            MDGridLayout:
                 md_bg_color: 1, 1, 1, 1
-                orientation: 'vertical'
-                padding: 25, 0, 25, 0
+                padding: 50, 0, 50, 25
+                cols: 2
+
+                MDLabel:
+                    text:"Difficulty"
 
                 MDBoxLayout:
-                    orientation: 'horizontal'
+                    orientation: 'vertical'
 
-                    MDBoxLayout:
-                        orientation: 'vertical'
+                    MDGridLayout:
+                        cols: 2
+
+                        Check:
+                            id: easy
+                            size_hint: 1, 0.2
+                            size: "24dp", "28dp"
+                                    # pos_hint: {'center_y':.5, 'center_x':.5}
+                            on_active: root.on_checkbox_active(self, self.active, root.ids.lbl_easy.text)
+                            active: True
 
                         MDLabel:
-                            text: "BGM"
+                            id: lbl_easy
+                            text: "Easy"
+
+                        Check:
+                            id: medium
+                            size_hint: 1, 0.2
+                            size: "24dp", "28dp"
+                            on_active: root.on_checkbox_active(self, self.active, "Medium")
+                                    # pos_hint: {'center_y':.5, 'center_x':.5}
 
                         MDLabel:
-                            text: "SFX"
+                            id: lbl_medium
+                            text: "Medium"
+
+                        Check:
+                            id: hard
+                            size_hint: 1, 0.2
+                            size: "24dp", "28dp"
+                            on_active: root.on_checkbox_active(self, self.active, "Hard")
 
                         MDLabel:
-                            text:"Diffculty"
-
-                    MDBoxLayout:
-                        orientation: 'vertical'
-
-                        MDBoxLayout:
-                            orientation: 'horizontal'
-                            padding: 0, 0, 0, 50
-
-                            SoundToggle:
-                                id: bgm_on
-                                text: "On"
-                                group: "bgm"
-                                state: "down"
-
-                            SoundToggle:
-                                id: bgm_off
-                                text: "Off"
-                                group: "bgm"
-                                state: "normal"
-
-                        MDSlider:
-                            id: "sfx_slider"
-                            min: 0
-                            max: 100
-                            value: 50
-                            on_value: root.on_sfx_slider_value(self)
-
-                        MDBoxLayout:
-                            id: "game_difficulty"
-                            orientation: 'horizontal'
-                            padding: 0, 0, 0, 25
-
-                            MDBoxLayout:
-                                orientation: 'vertical'
-                                padding: 0, 25, 0, 0
-                                spacing: 5
-
-                                Check:
-                                    id: easy
-                                    size_hint: 1, 0.2
-                                    size: "24dp", "28dp"
-                                    # pos_hint: {'center_y':.5, 'center_x':.5}
-                                    on_active: root.on_checkbox_active(*args)
-                                    active: True
-
-                                Check:
-                                    id: medium
-                                    size_hint: 1, 0.2
-                                    size: "24dp", "28dp"
-                                    on_active: root.on_checkbox_active(*args)
-                                    # pos_hint: {'center_y':.5, 'center_x':.5}
-
-                                Check:
-                                    id: hard
-                                    size_hint: 1, 0.2
-                                    size: "24dp", "28dp"
-                                    on_active: root.on_checkbox_active(*args)
-                                    # pos_hint: {'center_y':.5, 'center_x':.5}
-
-                            MDBoxLayout:
-                                orientation: 'vertical'
-                                padding: 0, 50, 0, 10
-                                spacing: 28
-
-                                MDLabel:
-                                    text: "Easy"
-
-                                MDLabel:
-                                    text: "Medium"
-
-                                MDLabel:
-                                    text:"Hard"
+                            id: lbl_hard
+                            text:"Hard"
 
 <HelpScreen>
     name:"help"

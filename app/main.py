@@ -26,11 +26,13 @@ from kivymd.uix.dialog import MDDialog
 from algorithm import astar
 
 sound = ObjectProperty(None, allownone=True)
+game_difficulty = ObjectProperty(None)
 
 ## Background Music
 class BackgroundMusic(Sound):
     def __init__(self):
         self.sound = SoundLoader.load('resources/bgm/beach_party.mp3')
+        self.sound.play()
 
 ## Sound Effects
 class SoundEffects(Sound):
@@ -61,12 +63,14 @@ class GameScreen(MDScreen):
     board_layout = ''
     turn = 'pl'
     count = 0
+    score = 0
     clicked = False
     blocked = False
     loop_thread = None
+    value_max = 0
 
-    time_label = StringProperty()
     step_counter = NumericProperty(0)
+    game_score = ObjectProperty(None)
 
     def __init__(self, **kwargs):
         super(GameScreen, self).__init__(**kwargs)
@@ -83,17 +87,11 @@ class GameScreen(MDScreen):
         self.board_layout = GridLayout(cols = self.dynamic_value, rows = self.dynamic_value)
         nbBalls = int((self.dynamic_value / 2) * ((self.dynamic_value / 2 )- 1))
         self.players['pl'] = Player(name = 'Player', player = 'pl', score = nbBalls)
-        counter = 0
-        color = 0
-        jumpline = 0
+        self.value_max = self.max_color(self.game_difficulty.text)
         random_balls = sample(range(0, grid_value), 3)
         ordering = sorted(random_balls)
 
         for i in range(0, grid_value):
-            if jumpline != int(i/ diviser):
-                jumpline += 1
-                counter += 1
-
             try:
                 value = self.grid[int(i / (diviser * (i % diviser)))]
             except Exception as e:
@@ -110,7 +108,7 @@ class GameScreen(MDScreen):
 
             if i in ordering:
                 ball = 'pl'
-                color = randint(1, 9)
+                color = randint(1, self.value_max)
             else:
                 ball = ''
                 color = 0
@@ -123,15 +121,15 @@ class GameScreen(MDScreen):
                 self.free_cells.remove((x, y))
                 self.set_balls.append((x, y))
             self.board_layout.add_widget(self.grid[y][x].button)
-            counter += 1
         self.layout.add_widget(self.board_layout)
 
     def add_balls(self):
+        self.value_max = self.max_color(self.game_difficulty.text)
         for i in range(3):
             if len(self.free_cells) > 3:
                 coord = self.free_cells[randint(0, len(self.free_cells)) - 1]
                 self.grid[coord[1]][coord[0]].ball = 'pl'
-                self.grid[coord[1]][coord[0]].color = randint(1, 9)
+                self.grid[coord[1]][coord[0]].color = randint(1, self.value_max)
                 self.grid[coord[1]][coord[0]].button.background_normal = self.ball_color(self.grid[coord[1]][coord[0]].color)
                 self.free_cells.remove((coord[0], coord[1]))
             else:
@@ -140,19 +138,16 @@ class GameScreen(MDScreen):
     def clear_board(self):
         self.free_cells.clear()
         for tile in range(0, int(self.dynamic_value * self.dynamic_value)):
-            try:
-                value = self.grid[int(tile / (self.dynamic_value * (tile % self.dynamic_value)))]
-            except Exception as e:
-                self.grid.append([])
             row = int(tile / self.dynamic_value)
             column = int(tile % self.dynamic_value)
-            self.grid[row].append([])
-            self.grid[row][column].append('')
+            self.grid[row][column].ball = ''
+            self.grid[row][column].color = 0
+            self.grid[row][column].button.background_normal = self.ball_color(self.grid[row][column].color)
             self.free_cells.append((row, column))
 
     def reset_board(self):
         self.clear_board()
-        self.set_next_balls()
+        self.add_balls()
 
     #Finding line ball
     def find_lines(self, row, column):
@@ -226,6 +221,7 @@ class GameScreen(MDScreen):
     #deleting line ball
     def delete_line(self, ball_coord_list):
         if ball_coord_list is not None:
+            self.scoring(len(ball_coord_list))
             for coord in ball_coord_list:
                 self.grid[coord[1]][coord[0]].ball = ''
                 self.grid[coord[1]][coord[0]].color = 0
@@ -313,6 +309,19 @@ class GameScreen(MDScreen):
                 self.clicked = True
         return False
 
+    def max_color(self, difficulty):
+
+        max_number = 3
+
+        if difficulty == "Easy":
+            max_number = 3
+        elif difficulty == "Medium":
+            max_number = 6
+        elif difficulty == "Hard":
+            max_number = 9
+
+        return max_number
+
     def place(self, prev_row, prev_column, row, column):
         if self.prev_ball.ball == self.turn:
             self.check(prev_row, prev_column, row, column)
@@ -362,9 +371,17 @@ class GameScreen(MDScreen):
         self.layout.clear_widgets()
         self.layout.add_widget(self.board_layout)
 
+    def scoring(self, length_of_remote_line):
+        multiplier = length_of_remote_line % 5+1
+        self.score += 10 * length_of_remote_line * multiplier
+        self.game_score.text = str(self.score)
+
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
+
+    def on_pre_enter(self):
+        self.reset_board()
 
 class FieldFullException(Exception):
     """Field full and no places to set next balls"""
@@ -374,31 +391,18 @@ class FieldFullException(Exception):
 class SettingsScreen(MDScreen):
     def __init__(self, **kwargs):
         super(SettingsScreen, self).__init__(**kwargs)
-        self.bgm_toggle = SoundToggle()
 
     def set_screen(self):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
 
-    def toggle_bgm(self, instance, value):
-        if value:
-            print('Switch is', instance.state, 'state')
+    def on_checkbox_active(self, instance, value, difficulty):
+        if value == True:
+            game_screen = MDApp.get_running_app().root.get_screen("game")
+            game_screen.game_difficulty.text = difficulty
+            print('The checkbox', difficulty, 'is checked and', instance.state, 'state')
         else:
-            print('Switch is', instance.state, 'state')
-
-    def on_sfx_slider_value(self, widget):
-        # soundVolume = float(widget.value/100)
-        # sound.volume = soundVolume
-        print("Slider : "+ str(widget.value/100))
-
-    def on_sfx_switch_value(self, widget):
-        pass
-
-    def on_checkbox_active(self, instance, value):
-        if value:
-            print('The checkbox', instance, 'is', value, 'and', instance.state, 'state')
-        else:
-            print('The checkbox', instance, 'is', value, 'and', instance.state, 'state')
+            print('The checkbox', difficulty, 'is unchecked and', instance.state, 'state')
 
 # HelpScreen
 class HelpScreen(MDScreen):
@@ -409,36 +413,6 @@ class HelpScreen(MDScreen):
 # RootScreen
 class RootScreen(ScreenManager):
     pass
-
-# Toggle Sound
-class SoundToggle(MDRectangleFlatButton, MDToggleButton):
-    active = BooleanProperty(False)
-    sound = ObjectProperty(None, allownone=True)
-    bgm_on = ObjectProperty(None)
-    bgm_off = ObjectProperty(None)
-    def __init__(self, **kwargs):
-        super(SoundToggle, self).__init__(**kwargs)
-        self.background_down = (0, 0, 1, 1)
-        self.font_color_down = [1, 0, 0, 1]
-        self.font_size = "12sp"
-        self.allow_no_selection = False
-        self.sound = BackgroundMusic()
-        # self.bind(state = self.bgm_on_state)
-        self.sfx = SoundEffects()
-
-    def bgm_on_state(self, bgm, state):
-        if self.bgm_on.state == 'down':
-            self.bgm_off.state = 'normal'
-            self.sound.play()
-        elif self.bgm_off.state == 'down':
-            self.bgm_on.state = 'normal'
-            self.sound.stop()
-
-    def sfx_on_state(self, widget, value):
-        if value == 'down':
-            self.sfx.play()
-        else:
-            self.sfx.stop()
 
 # Main
 class MainApp(MDApp):
@@ -454,6 +428,7 @@ class MainApp(MDApp):
         Window.borderless = True
         Clock.max_iteration = 20
         self.title = "Magic Line"
+
         return RootScreen()
 
     def show_exit_dialog(self):

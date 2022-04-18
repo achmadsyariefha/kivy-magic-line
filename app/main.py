@@ -8,10 +8,10 @@ import kivy
 kivy.require('1.0.0')
 
 from kivy.config import Config
-from kivy.clock import Clock, ClockEvent
+from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.core.audio import SoundLoader, Sound
-from kivy.properties import ObjectProperty, ListProperty, StringProperty, NumericProperty, BooleanProperty
+from kivy.properties import ObjectProperty, NumericProperty
 
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.gridlayout import GridLayout
@@ -19,11 +19,8 @@ from kivy.uix.button import Button
 
 from kivymd.app import MDApp
 from kivymd.uix.screen import MDScreen
-from kivymd.uix.button import MDFillRoundFlatButton, MDFlatButton, MDRectangleFlatButton
-from kivymd.uix.behaviors.toggle_behavior import MDToggleButton
+from kivymd.uix.button import MDFlatButton
 from kivymd.uix.dialog import MDDialog
-
-from algorithm import astar
 
 sound = ObjectProperty(None, allownone=True)
 game_difficulty = ObjectProperty(None)
@@ -67,6 +64,7 @@ class GameScreen(MDScreen):
     clicked = False
     blocked = False
     loop_thread = None
+    dialog = None
     value_max = 0
 
     step_counter = NumericProperty(0)
@@ -97,7 +95,7 @@ class GameScreen(MDScreen):
             except Exception as e:
                 self.grid.append([])
 
-            button_id = str(int(i / diviser)) + '-' + str(int(i % diviser))
+            button_id = f"{str(int(i/diviser))}-{str(int(i%diviser))}"
 
             y = int(i / diviser)
             x = int(i % diviser)
@@ -133,6 +131,7 @@ class GameScreen(MDScreen):
                 self.grid[coord[1]][coord[0]].button.background_normal = self.ball_color(self.grid[coord[1]][coord[0]].color)
                 self.free_cells.remove((coord[0], coord[1]))
             else:
+                self.is_game_over = True
                 raise FieldFullException()
 
     def clear_board(self):
@@ -147,6 +146,7 @@ class GameScreen(MDScreen):
 
     def reset_board(self):
         self.clear_board()
+        self.game_score.text = '0'
         self.add_balls()
 
     #Finding line ball
@@ -234,8 +234,8 @@ class GameScreen(MDScreen):
                 'dark_green', 'light_green', 'orange', 'pink',
                 'red', 'yellow')
         color_list = {i: color for i, color in enumerate(colors)}
+        color_ball = f"resources/img/{color_list[color]}.png"
 
-        color_ball = "resources/img/"+color_list[color]+".png"
         return color_ball
 
     #Drawing tiles
@@ -272,42 +272,46 @@ class GameScreen(MDScreen):
 
     # move the object
     def move_object(self, button):
-        matching = button.id.split('-')
-        row = int(matching[0])
-        column = int(matching[1])
-        ball = self.grid[row][column]
+        try:
+            matching = button.id.split('-')
+            row = int(matching[0])
+            column = int(matching[1])
+            ball = self.grid[row][column]
 
-        if column < 0 or column >= self.dynamic_value or column < 0 or column >= self.dynamic_value:
-            return
+            if column < 0 or column >= self.dynamic_value or column < 0 or column >= self.dynamic_value:
+                return
 
-        if self.clicked == True:
-            if row == self.prev_ball.row and column == self.prev_ball.column:
-                self.reinit_prev()
-                self.clicked = False
-            elif ball.ball == '':
-                if self.prev_ball.ball != '':
-                    if self.moving(self.prev_ball.column, self.prev_ball.row, column, row):
-                        self.place(self.prev_ball.row, self.prev_ball.column, row, column)
-                        self.prev_ball = ''
-                        find_lines = self.find_lines(row, column)
-                        if find_lines is None:
-                            self.add_balls()
-                            for coordinates in self.set_balls:
-                                array = self.find_lines(coordinates[0], coordinates[1])
-                                if array is not None:
-                                    self.delete_line(array)
-                        else:
-                            self.delete_line(find_lines)
-            elif ball.ball != '':
-                self.prev_ball = ball
-                self.clicked = True
+            if self.clicked == True:
+                if row == self.prev_ball.row and column == self.prev_ball.column:
+                    self.reinit_prev()
+                    self.clicked = False
+                elif ball.ball == '':
+                    if self.prev_ball.ball != '':
+                        if self.moving(self.prev_ball.column, self.prev_ball.row, column, row):
+                            self.place(self.prev_ball.row, self.prev_ball.column, row, column)
+                            self.prev_ball = ''
+                            find_lines = self.find_lines(row, column)
+                            if find_lines is None:
+                                self.add_balls()
+                                for coordinates in self.set_balls:
+                                    array = self.find_lines(coordinates[0], coordinates[1])
+                                    if array is not None:
+                                        self.delete_line(array)
+                            else:
+                                self.delete_line(find_lines)
+                elif ball.ball != '':
+                    self.prev_ball = ball
+                    self.clicked = True
+                else:
+                    return False
             else:
-                return False
-        else:
-            if ball.ball == self.turn:
-                self.prev_ball = ball
-                self.clicked = True
-        return False
+                if ball.ball == self.turn:
+                    self.prev_ball = ball
+                    self.clicked = True
+            return False
+        except FieldFullException:
+            print('game over')
+            self.game_over_dialog()
 
     def max_color(self, difficulty):
 
@@ -367,9 +371,9 @@ class GameScreen(MDScreen):
     def game_over(self):
         self.is_game_over = True
 
-    def restart(self):
-        self.layout.clear_widgets()
-        self.layout.add_widget(self.board_layout)
+    def restart(self, *args):
+        self.reset_board()
+        self.dialog.dismiss()
 
     def scoring(self, length_of_remote_line):
         multiplier = length_of_remote_line % 5+1
@@ -380,8 +384,29 @@ class GameScreen(MDScreen):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
 
+    def return_screen(self, *args):
+        MDApp.get_running_app().root.current = "start"
+        MDApp.get_running_app().root.transition.direction = "right"
+        self.dialog.dismiss()
+
     def on_pre_enter(self):
         self.reset_board()
+
+    def game_over_dialog(self):
+        if not self.dialog:
+            self.dialog = MDDialog(
+                    title = "Game Over", text = f"Your Score is {self.score}, Do you want to restart ?",
+                    buttons = [
+                    MDFlatButton(
+                        text="YES", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.restart
+                    ),
+                    MDFlatButton(
+                        text="NO", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.return_screen
+                    )
+                ]
+            )
+        self.dialog.open()
+
 
 class FieldFullException(Exception):
     """Field full and no places to set next balls"""
@@ -416,7 +441,6 @@ class RootScreen(ScreenManager):
 
 # Main
 class MainApp(MDApp):
-
     dialog = None
 
     def build(self):

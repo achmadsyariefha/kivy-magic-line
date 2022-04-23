@@ -146,7 +146,8 @@ class GameScreen(MDScreen):
 
     def reset_board(self):
         self.clear_board()
-        self.game_score.text = '0'
+        self.score = 0
+        self.game_score.text = str(self.score)
         self.add_balls()
 
     #Finding line ball

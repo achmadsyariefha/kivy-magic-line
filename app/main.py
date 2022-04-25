@@ -408,6 +408,24 @@ class GameScreen(MDScreen):
             )
         self.dialog.open()
 
+    def back_dialog(self):
+        if not self.dialog:
+            self.dialog = MDDialog(
+                    title = "Return to Menu", text = "do you want to return to menu ?",
+                    buttons = [
+                    MDFlatButton(
+                        text="YES", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.return_screen
+                    ),
+                    MDFlatButton(
+                        text="NO", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.close_dialog
+                    )
+                ]
+            )
+        self.dialog.open()
+
+    def close_dialog(self, inst):
+        self.dialog.dismiss()
+
 
 class FieldFullException(Exception):
     """Field full and no places to set next balls"""

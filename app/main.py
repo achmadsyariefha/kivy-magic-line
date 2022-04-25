@@ -65,6 +65,7 @@ class GameScreen(MDScreen):
     blocked = False
     loop_thread = None
     dialog = None
+    game_dialog = None
     value_max = 0
 
     step_counter = NumericProperty(0)
@@ -390,23 +391,28 @@ class GameScreen(MDScreen):
         MDApp.get_running_app().root.transition.direction = "right"
         self.dialog.dismiss()
 
+    def return_game_over(self, *args):
+        MDApp.get_running_app().root.current = "start"
+        MDApp.get_running_app().root.transition.direction = "right"
+        self.game_dialog.dismiss()
+
     def on_pre_enter(self):
         self.reset_board()
 
     def game_over_dialog(self):
-        if not self.dialog:
-            self.dialog = MDDialog(
+        if not self.game_dialog:
+            self.game_dialog = MDDialog(
                     title = "Game Over", text = f"Your Score is {self.score}, Do you want to restart ?",
                     buttons = [
                     MDFlatButton(
                         text="YES", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.restart
                     ),
                     MDFlatButton(
-                        text="NO", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.return_screen
+                        text="NO", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.return_game_over
                     )
                 ]
             )
-        self.dialog.open()
+        self.game_dialog.open()
 
     def back_dialog(self):
         if not self.dialog:

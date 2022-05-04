@@ -67,6 +67,7 @@ class GameScreen(MDScreen):
     dialog = None
     game_dialog = None
     value_max = 0
+    score_text = ObjectProperty(None)
 
     step_counter = NumericProperty(0)
     game_score = ObjectProperty(None)
@@ -312,7 +313,7 @@ class GameScreen(MDScreen):
                     self.clicked = True
             return False
         except FieldFullException:
-            print('game over')
+            print(f'game over. Score : {self.score}')
             self.game_over_dialog()
 
     def max_color(self, difficulty):
@@ -377,6 +378,10 @@ class GameScreen(MDScreen):
         self.reset_board()
         self.dialog.dismiss()
 
+    def restart_game(self, *args):
+        self.reset_board()
+        self.game_dialog.dismiss()
+
     def scoring(self, length_of_remote_line):
         multiplier = length_of_remote_line % 5+1
         self.score += 10 * length_of_remote_line * multiplier
@@ -389,12 +394,7 @@ class GameScreen(MDScreen):
     def return_screen(self, *args):
         MDApp.get_running_app().root.current = "start"
         MDApp.get_running_app().root.transition.direction = "right"
-        self.dialog.dismiss()
-
-    def return_game_over(self, *args):
-        MDApp.get_running_app().root.current = "start"
-        MDApp.get_running_app().root.transition.direction = "right"
-        self.game_dialog.dismiss()
+        self.restart()
 
     def on_pre_enter(self):
         self.reset_board()
@@ -402,13 +402,13 @@ class GameScreen(MDScreen):
     def game_over_dialog(self):
         if not self.game_dialog:
             self.game_dialog = MDDialog(
-                    title = "Game Over", text = f"Your Score is {self.score}, Do you want to restart ?",
+                    title = "Game Over", text = "your journey ends, Do you want to restart ?",
                     buttons = [
                     MDFlatButton(
-                        text="YES", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.restart
+                        text="YES", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.restart_game
                     ),
                     MDFlatButton(
-                        text="NO", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.return_game_over
+                        text="NO", text_color= MDApp.get_running_app().theme_cls.primary_color, on_press = self.close_game_dialog
                     )
                 ]
             )
@@ -431,6 +431,9 @@ class GameScreen(MDScreen):
 
     def close_dialog(self, inst):
         self.dialog.dismiss()
+
+    def close_game_dialog(self, inst):
+        self.game_dialog.dismiss()
 
 
 class FieldFullException(Exception):

@@ -303,13 +303,17 @@ class GameScreen(MDScreen):
                             else:
                                 self.delete_line(find_lines)
                 elif ball.ball != '':
+                    self.prev_ball.button.background_color = (1, 1, 1, 1)
                     self.prev_ball = ball
                     self.clicked = True
+                    ball.button.background_color = (1, 1, 1, 0.7)
+
                 else:
                     return False
             else:
                 if ball.ball == self.turn:
                     self.prev_ball = ball
+                    ball.button.background_color = (1, 1, 1, 0.7)
                     self.clicked = True
             return False
         except FieldFullException:

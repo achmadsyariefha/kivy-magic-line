@@ -1,5 +1,6 @@
 from math import sqrt
 from random import randint, sample
+from os.path import dirname
 
 from core import Player, CheckerBall
 
@@ -8,9 +9,11 @@ import kivy
 kivy.require('1.0.0')
 
 from kivy.config import Config
+from kivy.modules import Modules
 from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.core.audio import SoundLoader, Sound
+from kivy.input.recorder import Recorder
 from kivy.properties import ObjectProperty, NumericProperty
 
 from kivy.uix.screenmanager import ScreenManager
@@ -24,6 +27,8 @@ from kivymd.uix.dialog import MDDialog
 
 sound = ObjectProperty(None, allownone=True)
 game_difficulty = ObjectProperty(None)
+Modules.add_path(dirname(__file__))
+Config.set("modules", "telenium_client", "")
 
 ## Background Music
 class BackgroundMusic(Sound):

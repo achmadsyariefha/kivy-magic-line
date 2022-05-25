@@ -6,7 +6,7 @@ from telenium.tests import TeleniumTestCase
 
 class LinesTestCase(TeleniumTestCase):
     cmd_entrypoint = [u'main.py']
-    
+
     def test_ui_test(self):
         self.assertExists('//RootScreen', timeout=30)
         self.assertExists('//StartScreen[0]', timeout=30)

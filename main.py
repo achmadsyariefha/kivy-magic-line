@@ -2,7 +2,7 @@ from math import sqrt
 from random import randint, sample
 from os.path import dirname
 
-from core import Player, CheckerBall
+from app.core import Player, CheckerBall
 
 import kivy
 
@@ -33,13 +33,13 @@ Config.set("modules", "telenium_client", "")
 ## Background Music
 class BackgroundMusic(Sound):
     def __init__(self):
-        self.sound = SoundLoader.load('resources/bgm/beach_party.mp3')
+        self.sound = SoundLoader.load('app/resources/bgm/beach_party.mp3')
         self.sound.play()
 
 ## Sound Effects
 class SoundEffects(Sound):
     def __init__(self):
-        self.sound = SoundLoader.load('resources/sfx/sample.mp3')
+        self.sound = SoundLoader.load('app/resources/sfx/sample.mp3')
 
 # StartScreen
 class StartScreen(MDScreen):
@@ -242,7 +242,7 @@ class GameScreen(MDScreen):
                 'dark_green', 'light_green', 'orange', 'pink',
                 'red', 'yellow')
         color_list = {i: color for i, color in enumerate(colors)}
-        color_ball = f"resources/img/{color_list[color]}.png"
+        color_ball = f"app/resources/img/{color_list[color]}.png"
 
         return color_ball
 
